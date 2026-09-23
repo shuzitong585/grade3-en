@@ -56,13 +56,23 @@
   ul.how{margin:8px 0 0;padding-left:20px;font-size:13.5px;color:#6b4a55}
   ul.how li{margin-bottom:5px}
   .foot{margin-top:auto;padding-top:14px;font-size:11px;color:#8a6470;text-align:center}
+  .ucard{background:#fff;border-radius:18px;padding:13px 16px;display:flex;align-items:center;gap:12px;margin-top:10px;border:0;width:100%;text-align:left;font-family:inherit;color:#4a2c33}
+  .ucard:active{transform:scale(.99)}
+  .ucard .ub{width:44px;height:44px;border-radius:50%;background:#c2708c;color:#fff;font-weight:600;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0}
+  .ucard.lock .ub{background:#E8D5DB;color:#bb93a0}
+  .ucard .ut{flex:1;min-width:0}
+  .ucard .uw{font-size:16.5px;font-weight:600}
+  .ucard .um{font-size:12px;color:#8a6470}
+  .ucard .ur{font-size:12px;color:#EF9F27;font-weight:700;letter-spacing:1px;flex-shrink:0}
+  .ucard .lk{font-size:20px;flex-shrink:0}
+  .back{background:none;border:0;color:#c2708c;font-size:14px;font-weight:600;padding:6px 4px;font-family:inherit;text-align:left}
 </style>
 </head>
 <body>
 <div id="app"></div>
 
 <script>
-/* ============ 数据：人教版三年级上册 Unit 1（Hello!）============ */
+/* ============ 数据：人教版三年级上册（2024）Unit 1–6 ============ */
 var UNITS = {
   1: {
     title: "Hello! 打招呼",
@@ -84,7 +94,6 @@ var UNITS = {
       { w:"friend", ph:"/frend/",      cn:"朋友",                e:"👫", s:"I am nice to my friends.", from:"课本原句" },
       { w:"good",   ph:"/ɡʊd/",        cn:"好的",                e:"👍", s:"You are a good friend." }
     ],
-    /* 15 题：看图 5 · 听音 4 · 拼写 3 · 句子 3，每个词只当一次考点 */
     qs: [
       { t:"pic",   k:"ear",    o:["ear","eye","arm","hand"] },
       { t:"pic",   k:"hand",   o:["hand","arm","eye","mouth"] },
@@ -101,6 +110,228 @@ var UNITS = {
       { t:"sent",  k:"say",    blank:"____ it again, please.",   o:["Say","Listen","Share","Help"] },
       { t:"sent",  k:"listen", blank:"____ to me, please.",      o:["Listen","Say","Help","Share"] },
       { t:"sent",  k:"good",   blank:"You are a ____ friend.",   o:["good","nice","big","small"] }
+    ]
+  },
+  2: {
+    title: "Different families 我的家",
+    badge: "U2",
+    words: [
+      { w:"mum",         ph:"/mʌm/",           cn:"（口语）妈妈",       e:"👩", s:"This is my mum. I love her." },
+      { w:"dad",         ph:"/dæd/",           cn:"（口语）爸爸；爹爹", e:"👨", s:"This is my dad. I love him." },
+      { w:"grandma",     ph:"/ˈɡrænmɑː/",      cn:"奶奶；姥姥",         e:"👵", s:"This is my grandma.", from:"课本原句" },
+      { w:"grandpa",     ph:"/ˈɡrænpɑː/",      cn:"爷爷；姥爷",         e:"👴", s:"This is my grandpa. He is my dad's dad." },
+      { w:"grandfather", ph:"/ˈɡrænfɑːðə(r)/", cn:"（外）祖父；爷爷；外公", e:"🧓", s:"My grandfather is kind to me." },
+      { w:"grandmother", ph:"/ˈɡrænmʌðə(r)/",  cn:"（外）祖母；奶奶；外婆", e:"👵", s:"My grandmother makes good cakes." },
+      { w:"mother",      ph:"/ˈmʌðə(r)/",      cn:"母亲；妈妈",         e:"👩", s:"This is my mother." },
+      { w:"father",      ph:"/ˈfɑːðə(r)/",     cn:"父亲；爸爸",         e:"👨", s:"This is my father." },
+      { w:"me",          ph:"/miː/",           cn:"我",                 e:"🙋", s:"Look! This is me!" },
+      { w:"sister",      ph:"/ˈsɪstə(r)/",     cn:"姐；妹",             e:"👧", s:"This is my sister." },
+      { w:"family",      ph:"/ˈfæməli/",       cn:"家；家庭",           e:"👪", s:"Look! This is my family.", from:"课本原句" },
+      { w:"have",        ph:"/hæv/",           cn:"有",                 e:"🐱", s:"I have a cat.", from:"课本原句" },
+      { w:"big",         ph:"/bɪɡ/",           cn:"大的",               e:"🐘", s:"I have a big family." },
+      { w:"cousin",      ph:"/ˈkʌzn/",         cn:"堂（表）兄弟；堂（表）姐妹", e:"🧒", s:"This is my cousin. We can play." },
+      { w:"brother",     ph:"/ˈbrʌðə(r)/",     cn:"兄；弟",             e:"👦", s:"Is that your brother?", from:"课本原句" },
+      { w:"baby",        ph:"/ˈbeɪbi/",        cn:"婴儿",               e:"👶", s:"My cousin is a baby." },
+      { w:"uncle",       ph:"/ˈʌŋkl/",         cn:"伯父；叔父；舅父；姑父；姨父", e:"🧔", s:"This is my uncle." },
+      { w:"aunt",        ph:"/ɑːnt/",          cn:"伯母；婶母；舅母；姑母；姨母", e:"👩‍🦰", s:"This is my aunt." },
+      { w:"small",       ph:"/smɔːl/",         cn:"小的",               e:"🐭", s:"My baby brother is small." }
+    ],
+    qs: [
+      { t:"pic",   k:"baby",         o:["baby","grandpa","mother","uncle"] },
+      { t:"pic",   k:"sister",       o:["sister","baby","grandma","mother"] },
+      { t:"pic",   k:"brother",      o:["brother","grandpa","uncle","aunt"] },
+      { t:"pic",   k:"grandmother", o:["grandmother","grandpa","mother","father"] },
+      { t:"listen",k:"mum",          o:["mum","mother","month","mad"] },
+      { t:"listen",k:"dad",          o:["dad","date","bad","hand"] },
+      { t:"listen",k:"grandma",      o:["grandma","grandpa","grand","hand"] },
+      { t:"listen",k:"grandfather",  o:["grandfather","grandmother","grandpa","father"] },
+      { t:"listen",k:"mother",       o:["mother","father","brother","month"] },
+      { t:"listen",k:"uncle",        o:["uncle","ankle","aunt","under"] },
+      { t:"listen",k:"aunt",         o:["aunt","uncle","under","on"] },
+      { t:"listen",k:"cousin",       o:["cousin","cotton","kitchen","curtain"] },
+      { t:"listen",k:"me",           o:["me","be","we","he"] },
+      { t:"spell", k:"family",  blank:"f_mily", o:["a","e","i","o"] },
+      { t:"spell", k:"father",  blank:"fa_her", o:["t","d","p","b"] },
+      { t:"spell", k:"big",     blank:"b_g",    o:["i","a","e","o"] },
+      { t:"spell", k:"small",   blank:"sm_ll",  o:["a","e","i","o"] },
+      { t:"spell", k:"have",    blank:"ha_e",   o:["v","b","n","m"] },
+      { t:"sent",  k:"grandpa", blank:"This is my ____. He is my dad's dad.", o:["grandpa","grandma","mother","brother"] }
+    ]
+  },
+  3: {
+    title: "Amazing animals 可爱的动物",
+    badge: "U3",
+    words: [
+      { w:"like",     ph:"/laɪk/",       cn:"喜欢",       e:"❤️", s:"Do you like the farm?", from:"课本原句" },
+      { w:"dog",      ph:"/dɒɡ/",        cn:"狗",         e:"🐶", s:"I have a dog." },
+      { w:"pet",      ph:"/pet/",        cn:"宠物",       e:"🐾", s:"Do you have a pet?", from:"课本原句" },
+      { w:"cat",      ph:"/kæt/",        cn:"猫",         e:"🐱", s:"Yes, I do. I have a cat.", from:"课本原句" },
+      { w:"fish",     ph:"/fɪʃ/",        cn:"鱼；鱼肉",   e:"🐟", s:"The fish is in the sea." },
+      { w:"bird",     ph:"/bɜːd/",       cn:"鸟",         e:"🐦", s:"Look at the little bird." },
+      { w:"rabbit",   ph:"/ˈræbɪt/",     cn:"兔",         e:"🐰", s:"The rabbit is cute." },
+      { w:"go",       ph:"/ɡəʊ/",        cn:"去；走",     e:"🚶", s:"Let's go to the zoo!", from:"课本原句" },
+      { w:"zoo",      ph:"/zuː/",        cn:"动物园",     e:"🦁", s:"Welcome to the zoo!" },
+      { w:"fox",      ph:"/fɒks/",       cn:"狐狸",       e:"🦊", s:"What's this? It's a fox.", from:"课本原句" },
+      { w:"Miss",     ph:"/mɪs/",        cn:"（学生对女教师的称呼）老师；女士", e:"👩‍🏫", s:"Miss White, what's that?", from:"课本原句" },
+      { w:"panda",    ph:"/ˈpændə/",     cn:"大熊猫",     e:"🐼", s:"It's a red panda.", from:"课本原句" },
+      { w:"cute",     ph:"/kjuːt/",      cn:"可爱的",     e:"🥰", s:"The monkey is so cute!" },
+      { w:"monkey",   ph:"/ˈmʌŋki/",     cn:"猴子",       e:"🐵", s:"Look at the monkey!" },
+      { w:"tiger",    ph:"/ˈtaɪɡə(r)/",  cn:"老虎",       e:"🐯", s:"The tiger can run fast." },
+      { w:"elephant", ph:"/ˈelɪfənt/",   cn:"大象",       e:"🐘", s:"The elephant is big." },
+      { w:"lion",     ph:"/ˈlaɪən/",     cn:"狮子",       e:"🦁", s:"The lion can run fast." },
+      { w:"animal",   ph:"/ˈænɪml/",     cn:"动物",       e:"🐧", s:"The panda is a cute animal." },
+      { w:"giraffe",  ph:"/dʒəˈrɑːf/",   cn:"长颈鹿",     e:"🦒", s:"The giraffe is so tall!" },
+      { w:"tall",     ph:"/tɔːl/",       cn:"高的",       e:"📏", s:"The giraffe is tall." },
+      { w:"fast",     ph:"/fɑːst/",      cn:"快的",       e:"💨", s:"The tiger can run fast." }
+    ],
+    qs: [
+      { t:"pic",   k:"dog",      o:["dog","cat","fox","bird"] },
+      { t:"pic",   k:"cat",      o:["cat","dog","tiger","lion"] },
+      { t:"pic",   k:"fish",     o:["fish","bird","cat","rabbit"] },
+      { t:"pic",   k:"rabbit",   o:["rabbit","cat","dog","monkey"] },
+      { t:"pic",   k:"panda",    o:["panda","bear","tiger","cat"] },
+      { t:"pic",   k:"elephant", o:["elephant","lion","tiger","monkey"] },
+      { t:"pic",   k:"giraffe",  o:["giraffe","horse","deer","cow"] },
+      { t:"listen",k:"like",     o:["like","bike","lake","look"] },
+      { t:"listen",k:"pet",      o:["pet","bat","pen","bed"] },
+      { t:"listen",k:"zoo",      o:["zoo","you","two","cook"] },
+      { t:"listen",k:"cute",     o:["cute","cup","cake","cat"] },
+      { t:"listen",k:"bird",     o:["bird","bed","bear","bread"] },
+      { t:"listen",k:"animal",   o:["animal","apple","uncle","under"] },
+      { t:"listen",k:"fast",     o:["fast","last","first","fat"] },
+      { t:"spell", k:"tiger",    blank:"ti_er",   o:["g","d","t","p"] },
+      { t:"spell", k:"monkey",   blank:"mon_ey",  o:["k","c","h","n"] },
+      { t:"spell", k:"lion",     blank:"li_n",    o:["o","a","u","e"] },
+      { t:"sent",  k:"go",       blank:"Let's ____ to the zoo!", o:["go","say","look","listen"] },
+      { t:"sent",  k:"Miss",     blank:"____ White, what's that?", o:["Miss","Milk","Nice","Hand"] },
+      { t:"sent",  k:"fox",      blank:"What's this? It's a ____.", o:["fox","box","dog","cat"] },
+      { t:"sent",  k:"tall",     blank:"The giraffe is ____.", o:["tall","small","big","fat"] }
+    ]
+  },
+  4: {
+    title: "Plants around us 植物与农场",
+    badge: "U4",
+    words: [
+      { w:"apple",  ph:"/ˈæpl/",      cn:"苹果",       e:"🍎", s:"Mike, do you like apples?", from:"课本原句" },
+      { w:"banana", ph:"/bəˈnɑːnə/",  cn:"香蕉",       e:"🍌", s:"I like bananas." },
+      { w:"farm",   ph:"/fɑːm/",      cn:"农场",       e:"🚜", s:"Do you like the farm?", from:"课本原句" },
+      { w:"air",    ph:"/eə(r)/",     cn:"空气",       e:"🌬️", s:"I like the fresh air.", from:"课本原句" },
+      { w:"grape",  ph:"/ɡreɪp/",     cn:"葡萄",       e:"🍇", s:"I like grapes." },
+      { w:"school", ph:"/skuːl/",     cn:"学校",       e:"🏫", s:"This is my school." },
+      { w:"garden", ph:"/ˈɡɑːdn/",    cn:"花园",       e:"🌺", s:"I water the flowers in the garden." },
+      { w:"need",   ph:"/niːd/",      cn:"需要",       e:"💦", s:"Plants need water." },
+      { w:"water",  ph:"/ˈwɔːtə(r)/", cn:"给……浇水；水", e:"💧", s:"Water the flowers, please." },
+      { w:"flower", ph:"/ˈflaʊə(r)/", cn:"花；花朵",   e:"🌸", s:"The flowers are nice." },
+      { w:"grass",  ph:"/ɡrɑːs/",     cn:"草；草地",   e:"🌿", s:"The grass is green." },
+      { w:"plant",  ph:"/plɑːnt/",    cn:"种植；植物", e:"🪴", s:"Plants need water, air and sun." },
+      { w:"new",    ph:"/njuː/",      cn:"新的",       e:"✨", s:"I have a new friend." },
+      { w:"tree",   ph:"/triː/",      cn:"树",         e:"🌳", s:"We can plant new trees.", from:"课本原句" },
+      { w:"sun",    ph:"/sʌn/",       cn:"阳光；太阳", e:"☀️", s:"Plants need the sun." },
+      { w:"give",   ph:"/ɡɪv/",       cn:"给",         e:"🎁", s:"Plants can give us many things.", from:"课本原句" },
+      { w:"us",     ph:"/ʌs/",        cn:"我们",       e:"👥", s:"Plants can give us many things.", from:"课本原句" },
+      { w:"them",   ph:"/ðəm/",       cn:"它们；他们；她们", e:"👉", s:"I like flowers. I water them." }
+    ],
+    qs: [
+      { t:"pic",   k:"apple",  o:["apple","banana","grape","pear"] },
+      { t:"pic",   k:"banana", o:["banana","apple","pear","lemon"] },
+      { t:"pic",   k:"grape",  o:["grape","apple","banana","pear"] },
+      { t:"pic",   k:"flower", o:["flower","tree","grass","rose"] },
+      { t:"pic",   k:"tree",   o:["tree","flower","grass","leaf"] },
+      { t:"pic",   k:"sun",    o:["sun","star","moon","cloud"] },
+      { t:"listen",k:"farm",   o:["farm","arm","far","from"] },
+      { t:"listen",k:"air",    o:["air","hair","ear","chair"] },
+      { t:"listen",k:"water",  o:["water","what","waiter","later"] },
+      { t:"listen",k:"grass",  o:["grass","glass","class","green"] },
+      { t:"spell", k:"school", blank:"sch_ol", o:["o","a","e","u"] },
+      { t:"spell", k:"plant",  blank:"pl_nt",  o:["a","e","i","o"] },
+      { t:"spell", k:"give",   blank:"gi_e",   o:["v","b","n","m"] },
+      { t:"spell", k:"need",   blank:"ne_d",   o:["e","a","i","o"] },
+      { t:"sent",  k:"new",    blank:"We can plant ____ trees.", o:["new","old","big","small"] },
+      { t:"sent",  k:"us",     blank:"Plants can give ____ many things.", o:["us","me","you","them"] },
+      { t:"sent",  k:"garden", blank:"I water the flowers in the ____.", o:["garden","school","farm","zoo"] },
+      { t:"sent",  k:"them",   blank:"I like apples. Do you like ____?", o:["them","it","us","me"] }
+    ]
+  },
+  5: {
+    title: "The colourful world 缤纷的色彩",
+    badge: "U5",
+    words: [
+      { w:"colour", ph:"/ˈkʌlə(r)/",  cn:"颜色",         e:"🎨", s:"What colour is it?", from:"课本原句" },
+      { w:"orange", ph:"/ˈɒrɪndʒ/",   cn:"橙红色；橙红色的；橙子", e:"🟧", s:"What colour is it? It's orange.", from:"课本原句" },
+      { w:"green",  ph:"/ɡriːn/",     cn:"绿色；绿色的", e:"🟩", s:"The grass is green." },
+      { w:"red",    ph:"/red/",       cn:"红色；红色的", e:"🟥", s:"I like red and pink.", from:"课本原句" },
+      { w:"blue",   ph:"/bluː/",      cn:"蓝色；蓝色的", e:"🟦", s:"Red and blue make purple.", from:"课本原句" },
+      { w:"make",   ph:"/meɪk/",      cn:"使出现；做",   e:"🎨", s:"Red and blue make purple.", from:"课本原句" },
+      { w:"purple", ph:"/ˈpɜːpl/",    cn:"紫色；紫色的", e:"🟪", s:"Red and blue make purple.", from:"课本原句" },
+      { w:"brown",  ph:"/braʊn/",     cn:"棕色；棕色的", e:"🟫", s:"Let's draw some purple and brown birds.", from:"课本原句" },
+      { w:"bear",   ph:"/beə(r)/",    cn:"熊",           e:"🐻", s:"Look at the brown bear!" },
+      { w:"yellow", ph:"/ˈjeləʊ/",    cn:"黄色；黄色的", e:"🟨", s:"The duck is yellow." },
+      { w:"duck",   ph:"/dʌk/",       cn:"鸭",           e:"🦆", s:"Look at the yellow duck!" },
+      { w:"sea",    ph:"/siː/",       cn:"海；海洋",     e:"🌊", s:"The sea is big and blue." },
+      { w:"some",   ph:"/sʌm/",       cn:"一些",         e:"✋", s:"Let's draw some birds." },
+      { w:"pink",   ph:"/pɪŋk/",      cn:"粉色；粉色的", e:"🌸", s:"I like red and pink.", from:"课本原句" },
+      { w:"draw",   ph:"/drɔː/",      cn:"画",           e:"🖍️", s:"Let's draw a cat!" },
+      { w:"white",  ph:"/waɪt/",      cn:"白色；白色的", e:"⬜", s:"It's a white bird." },
+      { w:"black",  ph:"/blæk/",      cn:"黑色；黑色的", e:"⬛", s:"The cat is black." }
+    ],
+    qs: [
+      { t:"pic",   k:"red",    o:["red","blue","green","yellow"] },
+      { t:"pic",   k:"blue",   o:["blue","red","black","white"] },
+      { t:"pic",   k:"green",  o:["green","red","yellow","brown"] },
+      { t:"pic",   k:"yellow", o:["yellow","orange","green","red"] },
+      { t:"pic",   k:"purple", o:["purple","blue","pink","brown"] },
+      { t:"pic",   k:"brown",  o:["brown","black","red","purple"] },
+      { t:"pic",   k:"black",  o:["black","white","blue","green"] },
+      { t:"pic",   k:"white",  o:["white","black","yellow","pink"] },
+      { t:"listen",k:"orange", o:["orange","onion","odd","egg"] },
+      { t:"listen",k:"pink",   o:["pink","pig","pin","pick"] },
+      { t:"listen",k:"bear",   o:["bear","pear","hair","ear"] },
+      { t:"listen",k:"some",   o:["some","come","sun","son"] },
+      { t:"spell", k:"colour", blank:"col_ur", o:["o","a","e","u"] },
+      { t:"spell", k:"sea",    blank:"s_a",    o:["e","a","i","o"] },
+      { t:"spell", k:"draw",   blank:"dr_w",   o:["a","e","i","o"] },
+      { t:"sent",  k:"make",   blank:"Red and blue ____ purple.", o:["make","draw","give","say"] },
+      { t:"sent",  k:"duck",   blank:"It's a yellow ____.", o:["duck","bird","bear","cat"] }
+    ]
+  },
+  6: {
+    title: "Useful numbers 有用的数字",
+    badge: "U6",
+    words: [
+      { w:"old",     ph:"/əʊld/",    cn:"（多少）岁；年纪；旧的", e:"🎂", s:"How old are you?", from:"课本原句" },
+      { w:"five",    ph:"/faɪv/",    cn:"五",         e:"5️⃣", s:"I'm five years old.", from:"课本原句" },
+      { w:"year",    ph:"/jɪə(r)/",  cn:"年纪；年",   e:"📆", s:"I'm five years old.", from:"课本原句" },
+      { w:"one",     ph:"/wʌn/",     cn:"一",         e:"1️⃣", s:"Oh, one more cut for the dog.", from:"课本原句" },
+      { w:"two",     ph:"/tuː/",     cn:"二",         e:"2️⃣", s:"How many apples? Two.", from:"课本原句" },
+      { w:"three",   ph:"/θriː/",    cn:"三",         e:"3️⃣", s:"I have three cats." },
+      { w:"four",    ph:"/fɔː(r)/",  cn:"四",         e:"4️⃣", s:"Four and one is five!" },
+      { w:"ten",     ph:"/ten/",     cn:"十",         e:"🔟", s:"That's ten yuan, please.", from:"课本原句" },
+      { w:"six",     ph:"/sɪks/",    cn:"六",         e:"6️⃣", s:"I'm six years old." },
+      { w:"seven",   ph:"/ˈsevn/",   cn:"七",         e:"7️⃣", s:"It's seven o'clock. Hurry!", from:"课本原句" },
+      { w:"eight",   ph:"/eɪt/",     cn:"八",         e:"8️⃣", s:"Eight, nine, ten!" },
+      { w:"nine",    ph:"/naɪn/",    cn:"九",         e:"9️⃣", s:"It's nine o'clock." },
+      { w:"o'clock", ph:"/əˈklɒk/",  cn:"（表示整点）……点钟", e:"⏰", s:"It's seven o'clock. Hurry!", from:"课本原句" },
+      { w:"cut",     ph:"/kʌt/",     cn:"切块",       e:"🔪", s:"Oh, one more cut for the dog.", from:"课本原句" },
+      { w:"eat",     ph:"/iːt/",     cn:"吃",         e:"😋", s:"Let's eat the cake!" },
+      { w:"cake",    ph:"/keɪk/",    cn:"蛋糕",       e:"🍰", s:"Happy birthday! A cake for you." }
+    ],
+    qs: [
+      { t:"pic",   k:"cake",  o:["cake","apple","banana","egg"] },
+      { t:"pic",   k:"cut",   o:["cut","eat","cake","apple"] },
+      { t:"pic",   k:"eat",   o:["eat","cut","cake","like"] },
+      { t:"listen",k:"one",   o:["one","sun","run","ten"] },
+      { t:"listen",k:"two",   o:["two","zoo","tool","ten"] },
+      { t:"listen",k:"three", o:["three","tree","there","free"] },
+      { t:"listen",k:"five",  o:["five","nine","fine","fish"] },
+      { t:"listen",k:"seven", o:["seven","eleven","same","say"] },
+      { t:"listen",k:"eight", o:["eight","late","egg","date"] },
+      { t:"listen",k:"ten",   o:["ten","pen","hen","den"] },
+      { t:"spell", k:"four",  blank:"fo_r",  o:["u","o","a","e"] },
+      { t:"spell", k:"six",   blank:"s_x",   o:["i","e","a","u"] },
+      { t:"spell", k:"nine",  blank:"nin_",  o:["e","a","i","o"] },
+      { t:"spell", k:"year",  blank:"y_ar",  o:["e","a","i","o"] },
+      { t:"sent",  k:"old",     blank:"How ____ are you?", o:["old","many","big","nice"] },
+      { t:"sent",  k:"o'clock", blank:"It's seven ____.", o:["o'clock","year","old","cake"] }
     ]
   }
 };
@@ -165,44 +396,119 @@ function save(o){
     localStorage.setItem(KEY, JSON.stringify(d));
   } catch(e){}
 }
+/* 复习袋条目格式 "单元号:单词"，旧版纯单词视为第 1 单元 */
+function wordIn(un, wk){
+  var u = UNITS[un];
+  if (!u) return null;
+  for (var i=0;i<u.words.length;i++) if (u.words[i].w === wk) return u.words[i];
+  return null;
+}
+function bagList(n){
+  var d = load(), out = [];
+  var arr = d.bag || [];
+  for (var i=0;i<arr.length;i++){
+    var it = String(arr[i]);
+    var un = it.indexOf(":") >= 0 ? Number(it.split(":")[0]) : 1;
+    var wk = it.indexOf(":") >= 0 ? it.split(":")[1] : it;
+    if ((!n || un === n) && wordIn(un, wk)) out.push(wk);
+  }
+  return out;
+}
+function addBag(n, key){
+  var d = load(), bag = d.bag || [];
+  var it = n + ":" + key;
+  if (bag.indexOf(it) < 0) bag.push(it);
+  save({ bag: bag });
+}
+function removeBag(n, key){
+  var d = load();
+  var it = n + ":" + key;
+  var bag = (d.bag || []).filter(function(x){ return x !== it; });
+  save({ bag: bag });
+}
+function starsOf(badge){
+  var d = load();
+  return (d.stars && d.stars[badge]) || 0;
+}
+/* 解锁：第 1 关开放，其后每关需前一关拿到星星 */
+function unlocked(n){
+  if (n === 1) return true;
+  return starsOf(UNITS[n-1].badge) >= 1;
+}
 
-/* ============ 首页 ============ */
+/* ============ 首页：关卡地图 ============ */
 function renderHome(){
-  var u = UNITS[S.unit], d = load();
-  var stars = (d.stars && d.stars[u.badge]) || 0;
-  var bag = (d.bag && d.bag.length) || 0;
+  var d = load();
+  var totalStars = 0, totalBag = 0, totalWords = 0;
+  for (var n=1;n<=6;n++){
+    totalStars += starsOf(UNITS[n].badge);
+    totalBag += bagList(n).length;
+    totalWords += UNITS[n].words.length;
+  }
   var h = "";
   h += '<div class="top">';
-  h +=   '<div><div class="t1">三年级上册 · 单词闯关</div><div class="t2">人教版 PEP · 6 个单元</div></div>';
-  h +=   '<div class="pill">★ ' + stars + "</div>";
+  h +=   '<div><div class="t1">三年级上册 · 单词闯关</div><div class="t2">人教版 PEP · ' + totalWords + " 个词 · 6 关</div></div>";
+  h +=   '<div class="pill">★ ' + totalStars + "</div>";
   h += "</div>";
   h += '<div class="card">';
-  h +=   '<div style="display:flex;align-items:center;gap:12px">';
-  h +=     '<div style="width:46px;height:46px;border-radius:50%;background:#c2708c;color:#fff;font-size:15px;font-weight:600;display:flex;align-items:center;justify-content:center">U1</div>';
-  h +=     '<div style="flex:1"><div style="font-size:17px;font-weight:600">' + esc(u.title) + '</div><div style="font-size:12px;color:#8a6470">15 个词 · 15 道题 · 约 3 分钟</div></div>';
-  h +=   "</div>";
   h +=   '<ul class="how cn">';
   h +=     "<li>看图选词、听音选词、补字母、句子填空，四种小游戏轮着来</li>";
-  h +=     "<li>答错的词会自动进「复习袋」，下次先练它</li>";
-  h +=     "<li>点 🔊 可以随时再听一遍发音</li>";
+  h +=     "<li>答错的词会自动进「复习袋」，随时回去练</li>";
+  h +=     "<li>拿到 ★ 就能解锁下一关，点 🔊 可以听发音</li>";
   h +=   "</ul>";
+  h +=   '<div style="margin-top:12px"><button class="btn ghost mini" id="snd" style="width:auto;padding:10px 16px">声音：' + (S.sound ? "开" : "关") + "</button></div>";
+  if (!soundOK()) h += '<div class="hint">这个浏览器不支持朗读，听力题需要看文字提示哦</div>';
+  h += "</div>";
+  for (var u2=1;u2<=6;u2++){
+    var unit = UNITS[u2];
+    var st = starsOf(unit.badge);
+    var bag2 = bagList(u2).length;
+    var lock = !unlocked(u2);
+    h += '<button class="ucard' + (lock ? " lock" : "") + '" data-u="' + u2 + '">';
+    h +=   '<div class="ub">' + (lock ? "🔒" : unit.badge) + "</div>";
+    h +=   '<div class="ut"><div class="uw">' + (u2 === 6 ? "" : "") + esc(unit.title) + '</div>';
+    h +=   '<div class="um">' + unit.words.length + " 个词" + (bag2 ? " · 复习袋 " + bag2 : "") + "</div></div>";
+    h +=   lock ? '<div class="lk">🔒</div>' : '<div class="ur">' + "★★★".slice(0, st) + '<span style="color:#E8D5DB">' + "★★★".slice(0, 3 - st) + "</span></div>";
+    h += "</button>";
+  }
+  h += '<div class="foot">进度存在本机 · 每天 3 分钟，比一次背 20 分钟更记得住</div>';
+  app.innerHTML = h;
+  document.getElementById("snd").onclick = function(){ S.sound = !S.sound; renderHome(); if(S.sound) say("Hello!"); };
+  var cards = app.querySelectorAll(".ucard");
+  for (var c=0;c<cards.length;c++){
+    cards[c].onclick = function(ev){
+      var n = Number(ev.currentTarget.getAttribute("data-u"));
+      if (unlocked(n)) renderUnit(n);
+    };
+  }
+}
+
+/* ============ 单元页 ============ */
+function renderUnit(n){
+  S.unit = n;
+  var u = UNITS[n];
+  var bag = bagList(n).length;
+  var st = starsOf(u.badge);
+  var h = "";
+  h += '<div class="top"><button class="back" id="bk">‹ 返回</button><div class="pill">★ ' + st + "</div></div>";
+  h += '<div class="card">';
+  h +=   '<div style="display:flex;align-items:center;gap:12px">';
+  h +=     '<div style="width:46px;height:46px;border-radius:50%;background:#c2708c;color:#fff;font-size:15px;font-weight:600;display:flex;align-items:center;justify-content:center">' + u.badge + "</div>";
+  h +=     '<div style="flex:1"><div style="font-size:17px;font-weight:600">' + esc(u.title) + '</div><div style="font-size:12px;color:#8a6470">' + u.words.length + " 个词 · " + u.qs.length + " 道题 · 约 3 分钟</div></div>";
+  h +=   "</div>";
   h +=   '<div style="margin-top:14px"><button class="btn" id="go">开始闯关</button></div>';
   h +=   '<div class="row">';
   h +=     '<button class="btn ghost mini" id="drill"' + (bag ? "" : " disabled style=\"opacity:.5\"") + '>复习袋 ' + bag + "</button>";
   h +=     '<button class="btn ghost mini" id="snd">声音：' + (S.sound ? "开" : "关") + "</button>";
   h +=   "</div>";
-  if (!soundOK()) h += '<div class="hint">这个浏览器不支持朗读，听力题需要看文字提示哦</div>';
   h += "</div>";
-  h += '<div class="foot">Unit 1 是样品 · 后面还有 U2～U6 待解锁</div>';
+  h += '<div class="foot">答错不扣分，错词进复习袋 · 两星以上自动清袋</div>';
   app.innerHTML = h;
+  document.getElementById("bk").onclick = renderHome;
   document.getElementById("go").onclick = function(){ start(deck()); };
   var dbtn = document.getElementById("drill");
-  if (dbtn) dbtn.onclick = function(){ start(deck(bagList())); };
-  document.getElementById("snd").onclick = function(){ S.sound = !S.sound; renderHome(); if(S.sound) say("Hello!"); };
-}
-function bagList(){
-  var d = load();
-  return (d.bag || []).filter(function(k){ return !!W(k); });
+  if (dbtn) dbtn.onclick = function(){ start(deck(bagList(n))); };
+  document.getElementById("snd").onclick = function(){ S.sound = !S.sound; renderUnit(n); if(S.sound) say("Hello!"); };
 }
 
 /* ============ 出题顺序 ============ */
@@ -220,11 +526,11 @@ function start(qs){
 }
 
 function renderQ(){
-  var q = S.order[S.i], w = W(q.k);
+  var q = S.order[S.i], w = W(q.k), u = UNITS[S.unit];
   var total = S.order.length;
   var h = "";
   h += '<div class="top">';
-  h +=   '<div><div class="t1">Unit 1 · 第 ' + (S.i + 1) + " / " + total + ' 题</div><div class="t2">' + typeName(q.t) + "</div></div>";
+  h +=   '<div><div class="t1">' + u.badge + " · 第 " + (S.i + 1) + " / " + total + ' 题</div><div class="t2">' + typeName(q.t) + "</div></div>";
   h +=   '<div class="pill">' + (S.streak >= 2 ? "连击 x" + S.streak : "★ " + S.correct) + "</div>";
   h += "</div>";
   h += '<div class="bar"><i style="width:' + Math.round(S.i / total * 100) + '%"></i></div>';
@@ -283,7 +589,7 @@ function onPick(ev){
   } else {
     S.streak = 0;
     if (S.miss.indexOf(q.k) < 0) S.miss.push(q.k);
-    addBag(q.k);
+    addBag(S.unit, q.k);
     say(q.k);
   }
 
@@ -316,33 +622,23 @@ function wireFeed(q, w){
 
 function pick(a){ return a[Math.floor(Math.random()*a.length)]; }
 
-function addBag(key){
-  var d = load(), bag = d.bag || [];
-  if (bag.indexOf(key) < 0) bag.push(key);
-  save({ bag: bag });
-}
-function removeBag(key){
-  var d = load(), bag = (d.bag || []).filter(function(k){ return k !== key; });
-  save({ bag: bag });
-}
-
 /* ============ 结果 ============ */
 function finish(){
+  var u = UNITS[S.unit];
   var total = S.order.length;
   var acc = total ? S.correct / total : 0;
   var stars = acc >= 0.9 ? 3 : acc >= 0.7 ? 2 : acc >= 0.5 ? 1 : 0;
 
   var d = load();
-  var old = (d.stars && d.stars["U1"]) || 0;
   var starMap = d.stars || {};
-  starMap["U1"] = Math.max(old, stars);
+  starMap[u.badge] = Math.max(starMap[u.badge] || 0, stars);
   save({ stars: starMap });
 
-  if (stars >= 2) S.miss.forEach(removeBag);
+  if (stars >= 2) S.miss.forEach(function(k){ removeBag(S.unit, k); });
 
   S.screen = "result";
   var h = "";
-  h += '<div class="top"><div><div class="t1">Unit 1 · 结果</div><div class="t2">' + total + " 题答对 " + S.correct + " 题</div></div><div class=\"pill\">★ " + stars + "</div></div>";
+  h += '<div class="top"><div><div class="t1">' + u.badge + " · 结果</div><div class=\"t2\">" + total + " 题答对 " + S.correct + ' 题</div></div><div class="pill">★ ' + stars + "</div></div>";
   h += '<div class="card">';
   h +=   '<div class="stars">' + "★★★".slice(0, stars) + '<span style="color:#E8D5DB">' + "★★★".slice(0, 3 - stars) + "</span></div>";
   h +=   '<div style="text-align:center;font-size:16px;font-weight:600">' + (stars === 3 ? "满星通关！" : stars === 2 ? "过关啦！" : stars === 1 ? "勉强过关，再练练" : "再来一次会更好") + "</div>";
@@ -358,9 +654,9 @@ function finish(){
   } else {
     h += '<div style="margin-top:14px;font-size:14px" class="cn">全部答对，没有要补的词 🎉</div>';
   }
-  h +=   '<div class="row"><button class="btn ghost" id="home">回首页</button><button class="btn ghost" id="all">整关重玩</button></div>';
+  h +=   '<div class="row"><button class="btn ghost" id="home">回地图</button><button class="btn ghost" id="all">整关重玩</button></div>';
   h += "</div>";
-  h += '<div class="foot">下次打开还能接着练 · 提示：每天 3 分钟，比一次背 20 分钟更记得住</div>';
+  h += '<div class="foot">' + (stars >= 1 && UNITS[S.unit + 1] ? "下一关已解锁，回地图看看 →" : "下次打开还能接着练") + "</div>";
   app.innerHTML = h;
 
   var sbs = app.querySelectorAll("[data-say]");
