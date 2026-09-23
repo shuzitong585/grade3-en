@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+<title>三年级上册 · 单词闯关</title>
+<style>
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{margin:0;padding:0;background:#F6E7EB}
+  body{font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;color:#4a2c33;line-height:1.5}
+  .cn{font-family:"Kaiti SC","KaiTi","STKaiti","Songti SC",serif}
+  #app{max-width:480px;min-height:100vh;margin:0 auto;background:#EDD1D8;display:flex;flex-direction:column;padding:14px 14px 22px}
+  .card{background:#fff;border-radius:18px;padding:16px}
+  .btn{display:block;width:100%;border:0;border-radius:16px;background:#c2708c;color:#fff;font-size:20px;font-weight:600;padding:16px;font-family:inherit}
+  .btn:active{opacity:.85}
+  .btn.ghost{background:#fff;color:#c2708c;border:2px solid #c2708c}
+  .btn.mini{font-size:16px;padding:12px;border-radius:14px}
+  .top{display:flex;align-items:center;justify-content:space-between;padding:2px 4px 10px}
+  .top .t1{font-size:15px;font-weight:600}
+  .top .t2{font-size:11px;color:#8a6470}
+  .pill{background:#fff;border-radius:999px;padding:5px 12px;font-size:13px;color:#c2708c;font-weight:600}
+  .bar{height:8px;background:rgba(255,255,255,.75);border-radius:999px;overflow:hidden;margin:0 4px 12px}
+  .bar > i{display:block;height:8px;background:#c2708c;border-radius:999px;transition:width .25s}
+  .qbox{background:#fff;border-radius:18px;padding:18px 16px;text-align:center}
+  .emoji{font-size:76px;line-height:1.1}
+  .stem{font-size:26px;font-weight:600;letter-spacing:.5px}
+  .sub{font-size:13px;color:#8a6470;margin-top:6px}
+  .opts{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}
+  .opt{background:#fff;border:2px solid #F0DDE3;border-radius:16px;padding:16px 8px;font-size:22px;font-weight:600;text-align:center;font-family:inherit;color:#4a2c33}
+  .opt:active{transform:scale(.98)}
+  .opt.right{border-color:#0F6E56;background:#E1F5EE;color:#0F6E56}
+  .opt.wrong{border-color:#A32D2D;background:#FCEBEB;color:#A32D2D}
+  .opt.dim{opacity:.45}
+  .speak{width:92px;height:92px;border-radius:50%;background:#c2708c;border:0;margin:6px auto 8px;display:flex;align-items:center;justify-content:center}
+  .speak:active{opacity:.85}
+  .speak svg{width:40px;height:40px;fill:#fff}
+  .feed{margin-top:12px;border-radius:16px;padding:14px;background:#FBF3F6;border:1px solid #F0DDE3;text-align:left}
+  .feed.ok{background:#EAF7F1;border-color:#BEE3D4}
+  .feed.no{background:#FDF1F1;border-color:#F2CFCF}
+  .feed .fh{font-size:17px;font-weight:600;margin:0 0 8px}
+  .wcard{display:flex;align-items:center;gap:12px}
+  .wcard .we{font-size:40px}
+  .wcard .ww{font-size:24px;font-weight:700}
+  .wcard .wp{font-size:13px;color:#8a6470}
+  .wcard .wc{font-size:15px}
+  .sent{margin-top:10px;font-size:15px;background:#fff;border-radius:12px;padding:10px 12px}
+  .sent b{color:#c2708c}
+  .hint{font-size:12px;color:#8a6470;text-align:center;margin-top:10px}
+  .stars{font-size:44px;letter-spacing:6px;color:#EF9F27;text-align:center;margin:6px 0}
+  .miss{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid #F4E4E9}
+  .miss .me{font-size:26px}
+  .miss .mw{font-size:18px;font-weight:600}
+  .miss .mc{font-size:13px;color:#8a6470}
+  .row{display:flex;gap:10px;margin-top:12px}
+  .row .btn{flex:1}
+  ul.how{margin:8px 0 0;padding-left:20px;font-size:13.5px;color:#6b4a55}
+  ul.how li{margin-bottom:5px}
+  .foot{margin-top:auto;padding-top:14px;font-size:11px;color:#8a6470;text-align:center}
+</style>
+</head>
+<body>
+<div id="app"></div>
+
+<script>
+/* ============ 数据：人教版三年级上册 Unit 1（Hello!）============ */
+var UNITS = {
+  1: {
+    title: "Hello! 打招呼",
+    badge: "U1",
+    words: [
+      { w:"name",   ph:"/neɪm/",       cn:"名字",                e:"🏷️", s:"Hi! My name is Wu Binbin.", from:"课本原句" },
+      { w:"nice",   ph:"/naɪs/",       cn:"令人愉快的；友好的",   e:"😊", s:"Nice to meet you.", from:"课本原句" },
+      { w:"ear",    ph:"/ɪə(r)/",      cn:"耳朵",                e:"👂", s:"This is my ear." },
+      { w:"hand",   ph:"/hænd/",       cn:"手",                  e:"🖐️", s:"This is my hand." },
+      { w:"eye",    ph:"/aɪ/",         cn:"眼睛",                e:"👁️", s:"This is my eye." },
+      { w:"mouth",  ph:"/maʊθ/",       cn:"嘴",                  e:"👄", s:"This is my mouth." },
+      { w:"arm",    ph:"/ɑːm/",        cn:"胳膊",                e:"💪", s:"This is my arm." },
+      { w:"can",    ph:"/kæn/",        cn:"可以",                e:"🙆", s:"We can share.", from:"课本原句" },
+      { w:"share",  ph:"/ʃeə(r)/",     cn:"分享",                e:"🤝", s:"Hey, Sarah! We can share.", from:"课本原句" },
+      { w:"smile",  ph:"/smaɪl/",      cn:"微笑；笑",             e:"😄", s:"Smile, please!" },
+      { w:"listen", ph:"/ˈlɪsn/",      cn:"听；倾听",            e:"🎧", s:"Listen to me, please." },
+      { w:"help",   ph:"/help/",       cn:"帮助",                e:"🤲", s:"Can I help you?" },
+      { w:"say",    ph:"/seɪ/",        cn:"说；讲",              e:"🗣️", s:"Say it again, please." },
+      { w:"friend", ph:"/frend/",      cn:"朋友",                e:"👫", s:"I am nice to my friends.", from:"课本原句" },
+      { w:"good",   ph:"/ɡʊd/",        cn:"好的",                e:"👍", s:"You are a good friend." }
+    ],
+    /* 15 题：看图 5 · 听音 4 · 拼写 3 · 句子 3，每个词只当一次考点 */
+    qs: [
+      { t:"pic",   k:"ear",    o:["ear","eye","arm","hand"] },
+      { t:"pic",   k:"hand",   o:["hand","arm","eye","mouth"] },
+      { t:"pic",   k:"eye",    o:["eye","ear","mouth","hand"] },
+      { t:"pic",   k:"mouth",  o:["mouth","ear","hand","arm"] },
+      { t:"pic",   k:"arm",    o:["arm","hand","ear","eye"] },
+      { t:"listen",k:"name",   o:["name","nine","new","nice"] },
+      { t:"listen",k:"nice",   o:["nice","nine","name","new"] },
+      { t:"listen",k:"can",    o:["can","cat","cake","cute"] },
+      { t:"listen",k:"help",   o:["help","hand","have","arm"] },
+      { t:"spell", k:"smile",  blank:"sm_le",  o:["i","a","e","o"] },
+      { t:"spell", k:"share",  blank:"sh_re",  o:["a","e","i","o"] },
+      { t:"spell", k:"friend", blank:"fr_end", o:["i","e","a","o"] },
+      { t:"sent",  k:"say",    blank:"____ it again, please.",   o:["Say","Listen","Share","Help"] },
+      { t:"sent",  k:"listen", blank:"____ to me, please.",      o:["Listen","Say","Help","Share"] },
+      { t:"sent",  k:"good",   blank:"You are a ____ friend.",   o:["good","nice","big","small"] }
+    ]
+  }
+};
+
+/* ============ 工具 ============ */
+var app = document.getElementById("app");
+var S = { unit:1, screen:"home", i:0, order:[], picked:null, correct:0, streak:0, best:0, miss:[], sound:true };
+
+function W(key){
+  var u = UNITS[S.unit];
+  for (var i=0;i<u.words.length;i++) if (u.words[i].w === key) return u.words[i];
+  return null;
+}
+function esc(s){ return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
+
+/* 按题型判断某个选项对不对：拼写题比的是「缺的那个字母」，其他题比整词 */
+function onlyLetters(s){ return String(s).toUpperCase().replace(/[^A-Z]/g, ""); }
+function isRightQ(q, v){
+  var val = String(q.o[v] || "");
+  if (q.t === "spell"){
+    var pos = q.blank.indexOf("_");
+    return val.toLowerCase() === q.k.charAt(pos).toLowerCase();
+  }
+  if (q.t === "sent") return val.trim().toLowerCase() === q.k.toLowerCase();
+  return onlyLetters(val) === onlyLetters(q.k);
+}
+
+var voice = null;
+function pickVoice(){
+  if (!("speechSynthesis" in window)) return;
+  var vs = window.speechSynthesis.getVoices() || [];
+  var prefer = ["Google US English","Samantha","Karen","Microsoft Aria","Microsoft Zira","Daniel"];
+  for (var p=0;p<prefer.length;p++){
+    for (var i=0;i<vs.length;i++) if (vs[i].name.indexOf(prefer[p]) >= 0) { voice = vs[i]; return; }
+  }
+  for (var j=0;j<vs.length;j++) if ((vs[j].lang||"").toLowerCase().indexOf("en-us") === 0) { voice = vs[j]; return; }
+  for (var k=0;k<vs.length;k++) if ((vs[k].lang||"").toLowerCase().indexOf("en") === 0) { voice = vs[k]; return; }
+}
+if ("speechSynthesis" in window){ pickVoice(); window.speechSynthesis.onvoiceschanged = pickVoice; }
+
+function say(text, rate){
+  if (!S.sound || !("speechSynthesis" in window) || !text) return;
+  try {
+    window.speechSynthesis.cancel();
+    var u = new SpeechSynthesisUtterance(String(text));
+    u.lang = "en-US"; u.rate = rate || 0.82; u.pitch = 1.05;
+    if (voice) u.voice = voice;
+    window.speechSynthesis.speak(u);
+  } catch(e){}
+}
+function soundOK(){ return ("speechSynthesis" in window); }
+
+/* ============ 存档 ============ */
+var KEY = "g3en_v1";
+function load(){
+  try { return JSON.parse(localStorage.getItem(KEY) || "{}"); } catch(e){ return {}; }
+}
+function save(o){
+  try {
+    var d = load();
+    for (var k in o) d[k] = o[k];
+    localStorage.setItem(KEY, JSON.stringify(d));
+  } catch(e){}
+}
+
+/* ============ 首页 ============ */
+function renderHome(){
+  var u = UNITS[S.unit], d = load();
+  var stars = (d.stars && d.stars[u.badge]) || 0;
+  var bag = (d.bag && d.bag.length) || 0;
+  var h = "";
+  h += '<div class="top">';
+  h +=   '<div><div class="t1">三年级上册 · 单词闯关</div><div class="t2">人教版 PEP · 6 个单元</div></div>';
+  h +=   '<div class="pill">★ ' + stars + "</div>";
+  h += "</div>";
+  h += '<div class="card">';
+  h +=   '<div style="display:flex;align-items:center;gap:12px">';
+  h +=     '<div style="width:46px;height:46px;border-radius:50%;background:#c2708c;color:#fff;font-size:15px;font-weight:600;display:flex;align-items:center;justify-content:center">U1</div>';
+  h +=     '<div style="flex:1"><div style="font-size:17px;font-weight:600">' + esc(u.title) + '</div><div style="font-size:12px;color:#8a6470">15 个词 · 15 道题 · 约 3 分钟</div></div>';
+  h +=   "</div>";
+  h +=   '<ul class="how cn">';
+  h +=     "<li>看图选词、听音选词、补字母、句子填空，四种小游戏轮着来</li>";
+  h +=     "<li>答错的词会自动进「复习袋」，下次先练它</li>";
+  h +=     "<li>点 🔊 可以随时再听一遍发音</li>";
+  h +=   "</ul>";
+  h +=   '<div style="margin-top:14px"><button class="btn" id="go">开始闯关</button></div>';
+  h +=   '<div class="row">';
+  h +=     '<button class="btn ghost mini" id="drill"' + (bag ? "" : " disabled style=\"opacity:.5\"") + '>复习袋 ' + bag + "</button>";
+  h +=     '<button class="btn ghost mini" id="snd">声音：' + (S.sound ? "开" : "关") + "</button>";
+  h +=   "</div>";
+  if (!soundOK()) h += '<div class="hint">这个浏览器不支持朗读，听力题需要看文字提示哦</div>';
+  h += "</div>";
+  h += '<div class="foot">Unit 1 是样品 · 后面还有 U2～U6 待解锁</div>';
+  app.innerHTML = h;
+  document.getElementById("go").onclick = function(){ start(deck()); };
+  var dbtn = document.getElementById("drill");
+  if (dbtn) dbtn.onclick = function(){ start(deck(bagList())); };
+  document.getElementById("snd").onclick = function(){ S.sound = !S.sound; renderHome(); if(S.sound) say("Hello!"); };
+}
+function bagList(){
+  var d = load();
+  return (d.bag || []).filter(function(k){ return !!W(k); });
+}
+
+/* ============ 出题顺序 ============ */
+function deck(onlyKeys){
+  var u = UNITS[S.unit];
+  return u.qs.filter(function(q){ return !onlyKeys || onlyKeys.indexOf(q.k) >= 0; });
+}
+
+/* ============ 答题 ============ */
+function start(qs){
+  S.order = qs.slice();
+  S.i = 0; S.correct = 0; S.streak = 0; S.miss = []; S.picked = null;
+  S.screen = "quiz";
+  renderQ();
+}
+
+function renderQ(){
+  var q = S.order[S.i], w = W(q.k);
+  var total = S.order.length;
+  var h = "";
+  h += '<div class="top">';
+  h +=   '<div><div class="t1">Unit 1 · 第 ' + (S.i + 1) + " / " + total + ' 题</div><div class="t2">' + typeName(q.t) + "</div></div>";
+  h +=   '<div class="pill">' + (S.streak >= 2 ? "连击 x" + S.streak : "★ " + S.correct) + "</div>";
+  h += "</div>";
+  h += '<div class="bar"><i style="width:' + Math.round(S.i / total * 100) + '%"></i></div>';
+
+  if (q.t === "pic"){
+    h += '<div class="qbox"><div class="emoji">' + w.e + '</div><div class="sub">这是什么？选出正确的单词</div></div>';
+  } else if (q.t === "listen"){
+    h += '<div class="qbox">';
+    h +=   '<button class="speak" id="play"><svg viewBox="0 0 24 24"><path d="M4 9v6h4l5 4V5L8 9H4zm12.5 3a4.5 4.5 0 0 0-2.5-4v8a4.5 4.5 0 0 0 2.5-4z"/></svg></button>';
+    h +=   '<div class="sub">点喇叭听发音，选出你听到的单词</div>';
+    h += "</div>";
+  } else if (q.t === "spell"){
+    h += '<div class="qbox"><div class="emoji">' + w.e + '</div><div class="stem">' + q.blank.replace(/_/g, "＿") + '</div><div class="sub">' + esc(w.cn) + " · 选出缺的那个字母</div></div>";
+  } else {
+    h += '<div class="qbox"><div class="emoji" style="font-size:40px">' + w.e + '</div><div class="stem" style="font-size:21px;line-height:1.5">' + esc(q.blank) + '</div><div class="sub">选一个词填进句子</div></div>';
+  }
+
+  h += '<div class="opts" id="opts">';
+  for (var i=0;i<q.o.length;i++){
+    h += '<button class="opt" data-v="' + i + '">' + esc(q.o[i]) + "</button>";
+  }
+  h += "</div>";
+  h += '<div id="feed"></div>';
+  h += '<div class="foot">' + (S.sound ? "" : "声音已关 · ") + "答错不扣分，会进复习袋</div>";
+  app.innerHTML = h;
+
+  var btns = app.querySelectorAll(".opt");
+  for (var b=0;b<btns.length;b++) btns[b].onclick = onPick;
+  if (q.t === "listen"){
+    document.getElementById("play").onclick = function(){ say(q.k); };
+    setTimeout(function(){ say(q.k); }, 350);
+  }
+}
+
+function typeName(t){
+  return t === "pic" ? "看图选词" : t === "listen" ? "听音选词" : t === "spell" ? "补全拼写" : "句子填空";
+}
+
+function onPick(ev){
+  if (S.picked !== null) return;
+  var idx = Number(ev.currentTarget.getAttribute("data-v"));
+  var q = S.order[S.i], w = W(q.k);
+  var ok = isRightQ(q, idx);
+  S.picked = idx;
+  var btns = app.querySelectorAll(".opt");
+  for (var i=0;i<btns.length;i++){
+    var v = Number(btns[i].getAttribute("data-v"));
+    var isRight = isRightQ(q, v);
+    if (isRight) btns[i].className = "opt right";
+    else if (v === idx) btns[i].className = "opt wrong";
+    else btns[i].className = "opt dim";
+  }
+  if (ok){
+    S.correct++; S.streak++;
+    say(q.k);
+  } else {
+    S.streak = 0;
+    if (S.miss.indexOf(q.k) < 0) S.miss.push(q.k);
+    addBag(q.k);
+    say(q.k);
+  }
+
+  var f = document.getElementById("feed");
+  f.innerHTML = feedHTML(q, w, ok);
+  wireFeed(q, w);
+
+  var last = (S.i === S.order.length - 1);
+  var nb = document.getElementById("next");
+  nb.onclick = function(){ last ? finish() : (S.i++, S.picked = null, renderQ()); };
+  if (nb.scrollIntoView) nb.scrollIntoView({ block:"nearest" });
+}
+
+function feedHTML(q, w, ok){
+  var h = '<div class="feed ' + (ok ? "ok" : "no") + '">';
+  h += '<p class="fh">' + (ok ? "对了 " + pick(["漂亮！", "答对啦！", "就是它！", "太棒了！"]) : "差一点 · 正确答案是 " + w.w) + "</p>";
+  h += '<div class="wcard"><div class="we">' + w.e + "</div>";
+  h +=   '<div style="flex:1"><div class="ww">' + w.w + ' <span style="font-size:14px;color:#8a6470;font-weight:400">' + w.ph + "</span></div>";
+  h +=   '<div class="wc cn">' + esc(w.cn) + "</div></div>";
+  h +=   '<button class="btn ghost mini" id="again" style="width:auto;padding:10px 14px">🔊</button></div>';
+  h += '<div class="sent cn">' + esc(w.s) + (w.from ? ' <span style="font-size:11px;color:#8a6470">（' + w.from + "）</span>" : "") + "</div>";
+  if (!ok && q.t !== "listen") h += '<div style="font-size:12.5px;color:#8a6470;margin-top:8px" class="cn">听一遍发音，跟着读两遍，再往下走 →</div>';
+  h += '<div style="margin-top:12px"><button class="btn" id="next">' + (S.i === S.order.length - 1 ? "看结果" : "下一题") + "</button></div>";
+  h += "</div>";
+  return h;
+}
+function wireFeed(q, w){
+  document.getElementById("again").onclick = function(){ say(w.w, 0.7); };
+}
+
+function pick(a){ return a[Math.floor(Math.random()*a.length)]; }
+
+function addBag(key){
+  var d = load(), bag = d.bag || [];
+  if (bag.indexOf(key) < 0) bag.push(key);
+  save({ bag: bag });
+}
+function removeBag(key){
+  var d = load(), bag = (d.bag || []).filter(function(k){ return k !== key; });
+  save({ bag: bag });
+}
+
+/* ============ 结果 ============ */
+function finish(){
+  var total = S.order.length;
+  var acc = total ? S.correct / total : 0;
+  var stars = acc >= 0.9 ? 3 : acc >= 0.7 ? 2 : acc >= 0.5 ? 1 : 0;
+
+  var d = load();
+  var old = (d.stars && d.stars["U1"]) || 0;
+  var starMap = d.stars || {};
+  starMap["U1"] = Math.max(old, stars);
+  save({ stars: starMap });
+
+  if (stars >= 2) S.miss.forEach(removeBag);
+
+  S.screen = "result";
+  var h = "";
+  h += '<div class="top"><div><div class="t1">Unit 1 · 结果</div><div class="t2">' + total + " 题答对 " + S.correct + " 题</div></div><div class=\"pill\">★ " + stars + "</div></div>";
+  h += '<div class="card">';
+  h +=   '<div class="stars">' + "★★★".slice(0, stars) + '<span style="color:#E8D5DB">' + "★★★".slice(0, 3 - stars) + "</span></div>";
+  h +=   '<div style="text-align:center;font-size:16px;font-weight:600">' + (stars === 3 ? "满星通关！" : stars === 2 ? "过关啦！" : stars === 1 ? "勉强过关，再练练" : "再来一次会更好") + "</div>";
+  h +=   '<div style="text-align:center;font-size:12.5px;color:#8a6470;margin-top:6px" class="cn">正确率 ' + Math.round(acc*100) + "% · 最高连击 " + S.streak + "</div>";
+  if (S.miss.length){
+    h += '<div style="margin-top:14px"><div style="font-size:14px;font-weight:600">要再练的词（' + S.miss.length + "）</div>";
+    for (var i=0;i<S.miss.length;i++){
+      var w = W(S.miss[i]);
+      h += '<div class="miss"><div class="me">' + w.e + '</div><div style="flex:1"><div class="mw">' + w.w + " <span style=\"font-size:12px;color:#8a6470;font-weight:400\">" + w.ph + '</span></div><div class="mc cn">' + esc(w.cn) + '</div></div><button class="btn ghost mini" data-say="' + w.w + '" style="width:auto;padding:8px 12px">🔊</button></div>';
+    }
+    h += "</div>";
+    h += '<div class="row"><button class="btn" id="redo">先练这 ' + S.miss.length + " 个词</button></div>";
+  } else {
+    h += '<div style="margin-top:14px;font-size:14px" class="cn">全部答对，没有要补的词 🎉</div>';
+  }
+  h +=   '<div class="row"><button class="btn ghost" id="home">回首页</button><button class="btn ghost" id="all">整关重玩</button></div>';
+  h += "</div>";
+  h += '<div class="foot">下次打开还能接着练 · 提示：每天 3 分钟，比一次背 20 分钟更记得住</div>';
+  app.innerHTML = h;
+
+  var sbs = app.querySelectorAll("[data-say]");
+  for (var s=0;s<sbs.length;s++) sbs[s].onclick = function(e){ say(e.currentTarget.getAttribute("data-say"), 0.72); };
+  document.getElementById("home").onclick = renderHome;
+  document.getElementById("all").onclick = function(){ start(deck()); };
+  var rd = document.getElementById("redo");
+  if (rd) rd.onclick = function(){ start(deck(S.miss.slice())); };
+  say("Well done!");
+}
+
+renderHome();
+</script>
+</body>
+</html>
