@@ -563,6 +563,21 @@ function say(text, rate){
 }
 function soundOK(){ return ("speechSynthesis" in window); }
 
+/* 句子朗读：先慢速、再正常（两段排队，浏览器会依次读完） */
+var SLOW_RATES = [0.55, 0.85];
+function saySlowThenNormal(text){
+  if (!S.sound || !("speechSynthesis" in window) || !text) return;
+  try {
+    window.speechSynthesis.cancel();
+    for (var i=0;i<SLOW_RATES.length;i++){
+      var u = new SpeechSynthesisUtterance(String(text));
+      u.lang = "en-US"; u.rate = SLOW_RATES[i]; u.pitch = 1.05;
+      if (voice) u.voice = voice;
+      window.speechSynthesis.speak(u);
+    }
+  } catch(e){ say(text, 0.8); }
+}
+
 /* 真正的「拼读」：按拼读块渐进拼出来（h → ha → hand），最后一个读整词。
    TTS 读不出单独的辅音（/h/ /nd/），所以渐进到「含元音的前缀」才出声——
    这正是自然拼读课上的 segment-then-blend 教法。标注「不发音」的块不读。 */
@@ -944,7 +959,7 @@ function feedHTML(q, w, ok){
   h +=   '<div class="wc cn">' + esc(w.cn) + "</div></div>";
   h +=   '<button class="btn ghost mini" id="again" style="width:auto;padding:10px 14px">🔊</button></div>';
   h += phoHTML(w);
-  h += '<div class="sent cn"><div style="display:flex;align-items:center;gap:10px"><span style="flex:1">' + esc(w.s) + (w.from ? ' <span style="font-size:11px;color:#8a6470">（' + w.from + "）</span>" : "") + '</span><button class="btn ghost mini" id="saysent" style="width:auto;padding:8px 12px;flex-shrink:0">🔊 读句子</button></div>';
+  h += '<div class="sent cn"><div style="display:flex;align-items:center;gap:10px"><span style="flex:1">' + esc(w.s) + (w.from ? ' <span style="font-size:11px;color:#8a6470">（' + w.from + "）</span>" : "") + '</span><button class="btn ghost mini" id="saysent" style="width:auto;padding:8px 12px;flex-shrink:0">🔊 读句子（慢→快）</button></div>';
   var scn = SENT_CN[w.s];
   if (scn) h += '<div style="font-size:12.5px;color:#8a6470;margin-top:5px">' + esc(scn) + "</div>";
   h += "</div>";
@@ -958,7 +973,7 @@ function wireFeed(q, w){
   var bl = document.getElementById("blend");
   if (bl) bl.onclick = function(){ blendSay(w.w); };
   var ss = document.getElementById("saysent");
-  if (ss) ss.onclick = function(){ say(w.s, 0.8); };
+  if (ss) ss.onclick = function(){ saySlowThenNormal(w.s); };
 }
 
 function pick(a){ return a[Math.floor(Math.random()*a.length)]; }
