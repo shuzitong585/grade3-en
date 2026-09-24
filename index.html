@@ -563,6 +563,45 @@ function say(text, rate){
 }
 function soundOK(){ return ("speechSynthesis" in window); }
 
+/* 真正的「拼读」：按拼读块渐进拼出来（h → ha → hand），最后一个读整词。
+   TTS 读不出单独的辅音（/h/ /nd/），所以渐进到「含元音的前缀」才出声——
+   这正是自然拼读课上的 segment-then-blend 教法。标注「不发音」的块不读。 */
+function blendTexts(word){
+  var chunks = PHO[word] || PHO[String(word).toLowerCase()];
+  if (!chunks) return null;
+  var seq = [], acc = "";
+  for (var i=0;i<chunks.length;i++){
+    var tag = String(chunks[i][1]);
+    if (tag.indexOf("不发音") >= 0 || tag.indexOf("哑") >= 0) continue;
+    var letters = String(chunks[i][0]).replace(/[^a-zA-Z']/g, "");
+    if (!letters) continue;
+    acc += letters;
+    /* 只在攒到一个「含元音」的块时出一段——TTS 读不出单独的 /h/ /nd/，
+       结尾辅音不单独成段，留给整词那一次 */
+    if (/[aeiouy]/i.test(letters)){ seq.push(acc); acc = ""; }
+  }
+  /* acc 里剩的是纯辅音（结尾 coda 或被吞的音），丢弃 */
+  if (!seq.length) seq = [String(word)];
+  if (seq[seq.length-1].toLowerCase() !== String(word).toLowerCase()) seq.push(String(word));
+  return seq;
+}
+function blendSay(word){
+  if (!S.sound || !("speechSynthesis" in window)) { say(word, 0.6); return; }
+  var seq = blendTexts(word);
+  if (!seq || !seq.length){ say(word, 0.6); return; }
+  try {
+    window.speechSynthesis.cancel();
+    for (var i=0;i<seq.length;i++){
+      var last = (i === seq.length - 1);
+      var u = new SpeechSynthesisUtterance(seq[i]);
+      u.lang = "en-US"; u.pitch = 1.05;
+      u.rate = last ? 0.8 : 0.5;
+      if (voice) u.voice = voice;
+      window.speechSynthesis.speak(u);
+    }
+  } catch(e){ say(word, 0.6); }
+}
+
 /* ============ 存档 ============ */
 var KEY = "g3en_v1";
 function load(){
@@ -793,7 +832,7 @@ function phoHTML(w){
     if (i) h += '<span class="plus">+</span>';
     h += '<span class="pk"><b>' + esc(chunks[i][0]) + "</b><i>" + esc(chunks[i][1]) + "</i></span>";
   }
-  h += '<button class="psay cn" id="blend">🔊 慢速拼读</button></div></div>';
+  h += '<button class="psay cn" id="blend">🔊 拼着读</button></div></div>';
   return h;
 }
 
@@ -805,7 +844,7 @@ function feedHTML(q, w, ok){
   h +=   '<div class="wc cn">' + esc(w.cn) + "</div></div>";
   h +=   '<button class="btn ghost mini" id="again" style="width:auto;padding:10px 14px">🔊</button></div>';
   h += phoHTML(w);
-  h += '<div class="sent cn">' + esc(w.s) + (w.from ? ' <span style="font-size:11px;color:#8a6470">（' + w.from + "）</span>" : "") + "</div>";
+  h += '<div class="sent cn" style="display:flex;align-items:center;gap:10px"><span style="flex:1">' + esc(w.s) + (w.from ? ' <span style="font-size:11px;color:#8a6470">（' + w.from + "）</span>" : "") + '</span><button class="btn ghost mini" id="saysent" style="width:auto;padding:8px 12px;flex-shrink:0">🔊 读句子</button></div>';
   if (!ok && q.t !== "listen") h += '<div style="font-size:12.5px;color:#8a6470;margin-top:8px" class="cn">听一遍发音，跟着读两遍，再往下走 →</div>';
   h += '<div style="margin-top:12px"><button class="btn" id="next">' + (S.i === S.order.length - 1 ? "看结果" : "下一题") + "</button></div>";
   h += "</div>";
@@ -814,10 +853,9 @@ function feedHTML(q, w, ok){
 function wireFeed(q, w){
   document.getElementById("again").onclick = function(){ say(w.w, 0.7); };
   var bl = document.getElementById("blend");
-  if (bl) bl.onclick = function(){
-    say(w.w, 0.45);
-    setTimeout(function(){ say(w.w, 0.8); }, 900);
-  };
+  if (bl) bl.onclick = function(){ blendSay(w.w); };
+  var ss = document.getElementById("saysent");
+  if (ss) ss.onclick = function(){ say(w.s, 0.8); };
 }
 
 function pick(a){ return a[Math.floor(Math.random()*a.length)]; }
