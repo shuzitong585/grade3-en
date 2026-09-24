@@ -824,6 +824,106 @@ function onPick(ev){
   if (nb.scrollIntoView) nb.scrollIntoView({ block:"nearest" });
 }
 
+/* 例句中文对照（键 = 英文原句），妹妹要求：例句下面写中文 */
+var SENT_CN = {
+  "Hi! My name is Wu Binbin.":"你好！我叫吴彬彬。",
+  "Nice to meet you.":"见到你很高兴。",
+  "This is my ear.":"这是我的耳朵。",
+  "This is my hand.":"这是我的手。",
+  "This is my eye.":"这是我的眼睛。",
+  "This is my mouth.":"这是我的嘴。",
+  "This is my arm.":"这是我的胳膊。",
+  "We can share.":"我们可以一起分享。",
+  "Hey, Sarah! We can share.":"嘿，萨拉！我们可以一起分享。",
+  "Smile, please!":"请笑一笑！",
+  "Listen to me, please.":"请听我说。",
+  "Can I help you?":"我能帮你吗？",
+  "Say it again, please.":"请再说一遍。",
+  "I am nice to my friends.":"我对朋友们很友好。",
+  "You are a good friend.":"你是一个好朋友。",
+  "This is my mum. I love her.":"这是我妈妈。我爱她。",
+  "This is my dad. I love him.":"这是我爸爸。我爱他。",
+  "This is my grandma.":"这是我奶奶。",
+  "This is my grandpa. He is my dad's dad.":"这是我爷爷。他是我爸爸的爸爸。",
+  "My grandfather is kind to me.":"爷爷对我很和蔼。",
+  "My grandmother makes good cakes.":"奶奶做的蛋糕很好吃。",
+  "This is my mother.":"这是我妈妈。",
+  "This is my father.":"这是我爸爸。",
+  "Look! This is me!":"看！这是我！",
+  "This is my sister.":"这是我姐姐（妹妹）。",
+  "Look! This is my family.":"看！这是我的家。",
+  "I have a cat.":"我有一只猫。",
+  "I have a big family.":"我有一个大家庭。",
+  "This is my cousin. We can play.":"这是我的表哥。我们可以一起玩。",
+  "Is that your brother?":"那是你的哥哥吗？",
+  "My cousin is a baby.":"我的表弟还是个小宝宝。",
+  "This is my uncle.":"这是我叔叔。",
+  "This is my aunt.":"这是我姑姑。",
+  "My baby brother is small.":"我的弟弟小小的。",
+  "Do you like the farm?":"你喜欢这个农场吗？",
+  "I have a dog.":"我有一只狗。",
+  "Do you have a pet?":"你养宠物吗？",
+  "Yes, I do. I have a cat.":"是的，我养了一只猫。",
+  "The fish is in the sea.":"鱼在大海里。",
+  "Look at the little bird.":"看这只小鸟。",
+  "The rabbit is cute.":"兔子很可爱。",
+  "Let's go to the zoo!":"我们去动物园吧！",
+  "Welcome to the zoo!":"欢迎来到动物园！",
+  "What's this? It's a fox.":"这是什么？是一只狐狸。",
+  "Miss White, what's that?":"怀特小姐，那是什么？",
+  "It's a red panda.":"它是小熊猫。",
+  "The monkey is so cute!":"猴子太可爱了！",
+  "Look at the monkey!":"看那只猴子！",
+  "The tiger can run fast.":"老虎跑得很快。",
+  "The elephant is big.":"大象很大。",
+  "The lion can run fast.":"狮子跑得很快。",
+  "The panda is a cute animal.":"熊猫是一种可爱的动物。",
+  "The giraffe is so tall!":"长颈鹿好高啊！",
+  "The giraffe is tall.":"长颈鹿很高。",
+  "Mike, do you like apples?":"迈克，你喜欢苹果吗？",
+  "I like bananas.":"我喜欢香蕉。",
+  "I like the fresh air.":"我喜欢新鲜的空气。",
+  "I like grapes.":"我喜欢葡萄。",
+  "This is my school.":"这是我的学校。",
+  "I water the flowers in the garden.":"我在花园里给花浇水。",
+  "Plants need water.":"植物需要水。",
+  "Water the flowers, please.":"请给花浇浇水。",
+  "The flowers are nice.":"这些花真好看。",
+  "The grass is green.":"草是绿色的。",
+  "Plants need water, air and sun.":"植物需要水、空气和阳光。",
+  "I have a new friend.":"我有一个新朋友。",
+  "We can plant new trees.":"我们可以种新树。",
+  "Plants need the sun.":"植物需要阳光。",
+  "Plants can give us many things.":"植物能给我们很多东西。",
+  "I like flowers. I water them.":"我喜欢花。我给它们浇水。",
+  "What colour is it?":"它是什么颜色？",
+  "What colour is it? It's orange.":"它是什么颜色？是橙色。",
+  "I like red and pink.":"我喜欢红色和粉色。",
+  "Red and blue make purple.":"红色加蓝色变成紫色。",
+  "Let's draw some purple and brown birds.":"我们来画一些紫色和棕色的小鸟吧。",
+  "Look at the brown bear!":"看那只棕熊！",
+  "The duck is yellow.":"鸭子是黄色的。",
+  "Look at the yellow duck!":"看那只黄色的鸭子！",
+  "The sea is big and blue.":"大海又大又蓝。",
+  "Let's draw some birds.":"我们来画一些小鸟吧。",
+  "Let's draw a cat!":"我们来画一只猫吧！",
+  "It's a white bird.":"它是一只白色的鸟。",
+  "The cat is black.":"这只猫是黑色的。",
+  "How old are you?":"你几岁了？",
+  "I'm five years old.":"我五岁了。",
+  "Oh, one more cut for the dog.":"哦，再给小狗剪一刀。",
+  "How many apples? Two.":"几个苹果？两个。",
+  "I have three cats.":"我有三只猫。",
+  "Four and one is five!":"四加一等于五！",
+  "That's ten yuan, please.":"一共十元，谢谢。",
+  "I'm six years old.":"我六岁了。",
+  "It's seven o'clock. Hurry!":"七点啦，快点！",
+  "Eight, nine, ten!":"八、九、十！",
+  "It's nine o'clock.":"现在九点。",
+  "Let's eat the cake!":"我们吃蛋糕吧！",
+  "Happy birthday! A cake for you.":"生日快乐！送你一个蛋糕。"
+};
+
 function phoHTML(w){
   var chunks = PHO[w.w] || PHO[String(w.w).toLowerCase()];
   if (!chunks) return "";
@@ -844,7 +944,10 @@ function feedHTML(q, w, ok){
   h +=   '<div class="wc cn">' + esc(w.cn) + "</div></div>";
   h +=   '<button class="btn ghost mini" id="again" style="width:auto;padding:10px 14px">🔊</button></div>';
   h += phoHTML(w);
-  h += '<div class="sent cn" style="display:flex;align-items:center;gap:10px"><span style="flex:1">' + esc(w.s) + (w.from ? ' <span style="font-size:11px;color:#8a6470">（' + w.from + "）</span>" : "") + '</span><button class="btn ghost mini" id="saysent" style="width:auto;padding:8px 12px;flex-shrink:0">🔊 读句子</button></div>';
+  h += '<div class="sent cn"><div style="display:flex;align-items:center;gap:10px"><span style="flex:1">' + esc(w.s) + (w.from ? ' <span style="font-size:11px;color:#8a6470">（' + w.from + "）</span>" : "") + '</span><button class="btn ghost mini" id="saysent" style="width:auto;padding:8px 12px;flex-shrink:0">🔊 读句子</button></div>';
+  var scn = SENT_CN[w.s];
+  if (scn) h += '<div style="font-size:12.5px;color:#8a6470;margin-top:5px">' + esc(scn) + "</div>";
+  h += "</div>";
   if (!ok && q.t !== "listen") h += '<div style="font-size:12.5px;color:#8a6470;margin-top:8px" class="cn">听一遍发音，跟着读两遍，再往下走 →</div>';
   h += '<div style="margin-top:12px"><button class="btn" id="next">' + (S.i === S.order.length - 1 ? "看结果" : "下一题") + "</button></div>";
   h += "</div>";
