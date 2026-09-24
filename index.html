@@ -578,24 +578,34 @@ function saySlowThenNormal(text){
   } catch(e){ say(text, 0.8); }
 }
 
-/* 真正的「拼读」：按拼读块渐进拼出来（h → ha → hand），最后一个读整词。
-   TTS 读不出单独的辅音（/h/ /nd/），所以渐进到「含元音的前缀」才出声——
-   这正是自然拼读课上的 segment-then-blend 教法。标注「不发音」的块不读。 */
-function blendTexts(word){
+/* 真正的「拼读」：逐音累进（successive blending）——
+   hand = ha → han → hand，每加一个音读一次，最后整词。
+   TTS 读不出单独的 /h/ /æ/，所以每次累进到「含元音」才出声；
+   多字母的辅音块（nd、th）拆成单字母参与累进，「不发音」块跳过。 */
+function audioParts(word){
   var chunks = PHO[word] || PHO[String(word).toLowerCase()];
   if (!chunks) return null;
-  var seq = [], acc = "";
+  var out = [];
   for (var i=0;i<chunks.length;i++){
     var tag = String(chunks[i][1]);
     if (tag.indexOf("不发音") >= 0 || tag.indexOf("哑") >= 0) continue;
     var letters = String(chunks[i][0]).replace(/[^a-zA-Z']/g, "");
     if (!letters) continue;
-    acc += letters;
-    /* 只在攒到一个「含元音」的块时出一段——TTS 读不出单独的 /h/ /nd/，
-       结尾辅音不单独成段，留给整词那一次 */
-    if (/[aeiouy]/i.test(letters)){ seq.push(acc); acc = ""; }
+    if (!/[aeiouy]/i.test(letters) && letters.length > 1){
+      for (var j=0;j<letters.length;j++) out.push(letters.charAt(j));
+    } else out.push(letters);
   }
-  /* acc 里剩的是纯辅音（结尾 coda 或被吞的音），丢弃 */
+  return out;
+}
+function blendTexts(word){
+  var parts = audioParts(word);
+  if (!parts || !parts.length) return [String(word)];
+  var seq = [], acc = "";
+  for (var i=0;i<parts.length;i++){
+    acc += parts[i];
+    /* 累积串里已经有元音 = 读得出来，每加一个音就出一段 */
+    if (/[aeiouy]/i.test(acc)) seq.push(acc);
+  }
   if (!seq.length) seq = [String(word)];
   if (seq[seq.length-1].toLowerCase() !== String(word).toLowerCase()) seq.push(String(word));
   return seq;
@@ -610,7 +620,7 @@ function blendSay(word){
       var last = (i === seq.length - 1);
       var u = new SpeechSynthesisUtterance(seq[i]);
       u.lang = "en-US"; u.pitch = 1.05;
-      u.rate = last ? 0.8 : 0.5;
+      u.rate = last ? 0.8 : 0.45;
       if (voice) u.voice = voice;
       window.speechSynthesis.speak(u);
     }
