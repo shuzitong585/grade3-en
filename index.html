@@ -45,6 +45,14 @@
   .wcard .wc{font-size:15px}
   .sent{margin-top:10px;font-size:15px;background:#fff;border-radius:12px;padding:10px 12px}
   .sent b{color:#c2708c}
+  .pho{margin-top:10px;background:#fff;border-radius:12px;padding:10px 12px}
+  .pho .pt{font-size:12px;color:#8a6470;margin-bottom:6px}
+  .pho .prow{display:flex;flex-wrap:wrap;gap:5px;align-items:center}
+  .pho .pk{background:#FBF3F6;border:1px solid #F0DDE3;border-radius:10px;padding:3px 8px;text-align:center}
+  .pho .pk b{font-size:16px;display:block;line-height:1.2}
+  .pho .pk i{font-style:normal;font-size:11px;color:#c2708c;display:block;line-height:1.3}
+  .pho .plus{font-size:12px;color:#c9a9b4}
+  .pho .psay{margin-left:auto;font-size:12.5px;color:#c2708c;background:none;border:1.5px solid #c2708c;border-radius:999px;padding:4px 10px;font-family:inherit}
   .hint{font-size:12px;color:#8a6470;text-align:center;margin-top:10px}
   .stars{font-size:44px;letter-spacing:6px;color:#EF9F27;text-align:center;margin:6px 0}
   .miss{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid #F4E4E9}
@@ -335,6 +343,125 @@ var UNITS = {
     ]
   }
 };
+
+/* ============ 自然拼读（PHO）============
+   每个词拆成「字母块 → 发音」，"不发音" 表示哑音（如 magic e）。
+   校验：所有块字母连起来必须等于单词本身。 */
+var PHO = {
+  /* U1 */
+  "name":[["n","/n/"],["a","/eɪ/"],["m","/m/"],["e","不发音"]],
+  "nice":[["n","/n/"],["i","/aɪ/"],["c","/s/"],["e","不发音"]],
+  "ear":[["ear","/ɪə/"]],
+  "hand":[["h","/h/"],["a","/æ/"],["nd","/nd/"]],
+  "eye":[["eye","/aɪ/（特殊词）"]],
+  "mouth":[["m","/m/"],["ou","/aʊ/"],["th","/θ/"]],
+  "arm":[["ar","/ɑː/"],["m","/m/"]],
+  "can":[["c","/k/"],["a","/æ/"],["n","/n/"]],
+  "share":[["sh","/ʃ/"],["are","/eə/"]],
+  "smile":[["sm","/sm/"],["i","/aɪ/"],["l","/l/"],["e","不发音"]],
+  "listen":[["l","/l/"],["i","/ɪ/"],["s","/s/"],["t","不发音"],["en","/ən/"]],
+  "help":[["h","/h/"],["e","/e/"],["lp","/lp/"]],
+  "say":[["s","/s/"],["ay","/eɪ/"]],
+  "friend":[["fr","/fr/"],["ie","/e/（特殊）"],["nd","/nd/"]],
+  "good":[["g","/ɡ/"],["oo","/ʊ/"],["d","/d/"]],
+  /* U2 */
+  "mum":[["m","/m/"],["u","/ʌ/"],["m","/m/"]],
+  "dad":[["d","/d/"],["a","/æ/"],["d","/d/"]],
+  "grandma":[["gr","/ɡr/"],["and","/ænd/"],["ma","/mɑː/"]],
+  "grandpa":[["gr","/ɡr/"],["and","/ænd/"],["pa","/pɑː/"]],
+  "grandfather":[["gr","/ɡr/"],["and","/ænd/"],["fa","/fɑː/"],["th","/ð/"],["er","/ə/"]],
+  "grandmother":[["gr","/ɡr/"],["and","/ænd/"],["mo","/mʌ/"],["th","/ð/"],["er","/ə/"]],
+  "mother":[["mo","/mʌ/"],["th","/ð/"],["er","/ə/"]],
+  "father":[["fa","/fɑː/"],["th","/ð/"],["er","/ə/"]],
+  "me":[["m","/m/"],["e","/iː/"]],
+  "sister":[["s","/s/"],["i","/ɪ/"],["st","/st/"],["er","/ə/"]],
+  "family":[["f","/f/"],["a","/æ/"],["m","/m/"],["i","/ə/"],["ly","/li/"]],
+  "have":[["h","/h/"],["a","/æ/"],["ve","/v/"]],
+  "big":[["b","/b/"],["i","/ɪ/"],["g","/ɡ/"]],
+  "cousin":[["c","/k/"],["ou","/ʌ/（特殊）"],["s","/z/"],["in","/ɪn/"]],
+  "brother":[["br","/br/"],["o","/ʌ/"],["th","/ð/"],["er","/ə/"]],
+  "baby":[["b","/b/"],["a","/eɪ/"],["b","/b/"],["y","/i/"]],
+  "uncle":[["un","/ʌŋ/"],["c","/k/"],["le","/l/"]],
+  "aunt":[["au","/ɑː/"],["nt","/nt/"]],
+  "small":[["sm","/sm/"],["all","/ɔːl/"]],
+  /* U3 */
+  "like":[["l","/l/"],["i","/aɪ/"],["ke","/k/"]],
+  "dog":[["d","/d/"],["o","/ɒ/"],["g","/ɡ/"]],
+  "pet":[["p","/p/"],["e","/e/"],["t","/t/"]],
+  "cat":[["c","/k/"],["a","/æ/"],["t","/t/"]],
+  "fish":[["f","/f/"],["i","/ɪ/"],["sh","/ʃ/"]],
+  "bird":[["b","/b/"],["ir","/ɜː/"],["d","/d/"]],
+  "rabbit":[["r","/r/"],["a","/æ/"],["bb","/b/"],["i","/ɪ/"],["t","/t/"]],
+  "go":[["g","/ɡ/"],["o","/əʊ/"]],
+  "zoo":[["z","/z/"],["oo","/uː/"]],
+  "fox":[["f","/f/"],["o","/ɒ/"],["x","/ks/"]],
+  "Miss":[["M","/m/"],["i","/ɪ/"],["ss","/s/"]],
+  "panda":[["p","/p/"],["a","/æ/"],["n","/n/"],["d","/d/"],["a","/ə/"]],
+  "cute":[["c","/k/"],["u","/juː/"],["te","/t/"]],
+  "monkey":[["m","/m/"],["o","/ʌ/"],["n","/ŋ/"],["key","/kiː/"]],
+  "tiger":[["t","/t/"],["i","/aɪ/"],["g","/ɡ/"],["er","/ə/"]],
+  "elephant":[["e","/e/"],["l","/l/"],["e","/ə/"],["ph","/f/"],["ant","/ənt/"]],
+  "lion":[["li","/laɪ/"],["on","/ən/"]],
+  "animal":[["a","/æ/"],["n","/n/"],["i","/ɪ/"],["m","/m/"],["al","/l/"]],
+  "giraffe":[["g","/dʒ/（软音）"],["i","/ə/"],["ra","/rɑː/"],["ffe","/f/"]],
+  "tall":[["t","/t/"],["all","/ɔːl/"]],
+  "fast":[["f","/f/"],["a","/ɑː/"],["st","/st/"]],
+  /* U4 */
+  "apple":[["a","/æ/"],["pp","/p/"],["le","/l/"]],
+  "banana":[["b","/b/"],["a","/ə/"],["na","/nɑː/"],["na","/nə/"]],
+  "farm":[["f","/f/"],["ar","/ɑː/"],["m","/m/"]],
+  "air":[["air","/eə/"]],
+  "grape":[["gr","/ɡr/"],["a","/eɪ/"],["pe","/p/"]],
+  "school":[["sch","/sk/"],["oo","/uː/"],["l","/l/"]],
+  "garden":[["g","/ɡ/"],["ar","/ɑː/"],["d","/d/"],["en","/ən/"]],
+  "need":[["n","/n/"],["ee","/iː/"],["d","/d/"]],
+  "water":[["wa","/wɔː/"],["ter","/tə/"]],
+  "flower":[["fl","/fl/"],["ow","/aʊ/"],["er","/ə/"]],
+  "grass":[["gr","/ɡr/"],["a","/ɑː/"],["ss","/s/"]],
+  "plant":[["pl","/pl/"],["ant","/ɑːnt/"]],
+  "new":[["n","/n/"],["ew","/juː/"]],
+  "tree":[["tr","/tr/"],["ee","/iː/"]],
+  "sun":[["s","/s/"],["u","/ʌ/"],["n","/n/"]],
+  "give":[["g","/ɡ/"],["i","/ɪ/"],["ve","/v/"]],
+  "us":[["u","/ʌ/"],["s","/s/"]],
+  "them":[["th","/ð/"],["e","/e/"],["m","/m/"]],
+  /* U5 */
+  "colour":[["c","/k/"],["o","/ʌ/"],["l","/l/"],["our","/ə/"]],
+  "orange":[["o","/ɒ/"],["ra","/rɪ/"],["nge","/ndʒ/"]],
+  "green":[["gr","/ɡr/"],["ee","/iː/"],["n","/n/"]],
+  "red":[["r","/r/"],["e","/e/"],["d","/d/"]],
+  "blue":[["bl","/bl/"],["ue","/uː/"]],
+  "make":[["m","/m/"],["a","/eɪ/"],["ke","/k/"]],
+  "purple":[["p","/p/"],["ur","/ɜː/"],["ple","/pl/"]],
+  "brown":[["br","/br/"],["ow","/aʊ/"],["n","/n/"]],
+  "bear":[["b","/b/"],["ear","/eə/（对比 ear /ɪə/）"]],
+  "yellow":[["y","/j/"],["e","/e/"],["ll","/l/"],["ow","/əʊ/"]],
+  "duck":[["d","/d/"],["u","/ʌ/"],["ck","/k/"]],
+  "sea":[["s","/s/"],["ea","/iː/"]],
+  "some":[["s","/s/"],["o","/ʌ/（特殊）"],["me","/m/"]],
+  "pink":[["p","/p/"],["i","/ɪ/"],["nk","/ŋk/"]],
+  "draw":[["dr","/dr/"],["aw","/ɔː/"]],
+  "white":[["wh","/w/"],["i","/aɪ/"],["te","/t/"]],
+  "black":[["bl","/bl/"],["a","/æ/"],["ck","/k/"]],
+  /* U6 */
+  "old":[["o","/əʊ/"],["ld","/ld/"]],
+  "five":[["f","/f/"],["i","/aɪ/"],["ve","/v/"]],
+  "year":[["y","/j/"],["ear","/ɪə/"]],
+  "one":[["one","/wʌn/（特殊词）"]],
+  "two":[["t","/t/"],["w","不发音"],["o","/uː/"]],
+  "three":[["th","/θ/"],["r","/r/"],["ee","/iː/"]],
+  "four":[["f","/f/"],["our","/ɔː/"]],
+  "ten":[["t","/t/"],["e","/e/"],["n","/n/"]],
+  "six":[["s","/s/"],["i","/ɪ/"],["x","/ks/"]],
+  "seven":[["s","/s/"],["e","/e/"],["v","/v/"],["en","/ən/"]],
+  "eight":[["ei","/eɪ/"],["gh","不发音"],["t","/t/"]],
+  "nine":[["n","/n/"],["i","/aɪ/"],["ne","/n/"]],
+  "o'clock":[["o","/ə/"],["cl","/kl/"],["o","/ɒ/"],["ck","/k/"]],
+  "cut":[["c","/k/"],["u","/ʌ/"],["t","/t/"]],
+  "eat":[["ea","/iː/"],["t","/t/"]],
+  "cake":[["c","/k/"],["a","/eɪ/"],["ke","/k/"]]
+};
+window.PHO = PHO;
 
 /* ============ 工具 ============ */
 var app = document.getElementById("app");
@@ -658,6 +785,18 @@ function onPick(ev){
   if (nb.scrollIntoView) nb.scrollIntoView({ block:"nearest" });
 }
 
+function phoHTML(w){
+  var chunks = PHO[w.w] || PHO[String(w.w).toLowerCase()];
+  if (!chunks) return "";
+  var h = '<div class="pho"><div class="pt cn">自然拼读 · 一起拼一拼</div><div class="prow">';
+  for (var i=0;i<chunks.length;i++){
+    if (i) h += '<span class="plus">+</span>';
+    h += '<span class="pk"><b>' + esc(chunks[i][0]) + "</b><i>" + esc(chunks[i][1]) + "</i></span>";
+  }
+  h += '<button class="psay cn" id="blend">🔊 慢速拼读</button></div></div>';
+  return h;
+}
+
 function feedHTML(q, w, ok){
   var h = '<div class="feed ' + (ok ? "ok" : "no") + '">';
   h += '<p class="fh">' + (ok ? "对了 " + pick(["漂亮！", "答对啦！", "就是它！", "太棒了！"]) : "差一点 · 正确答案是 " + w.w) + "</p>";
@@ -665,6 +804,7 @@ function feedHTML(q, w, ok){
   h +=   '<div style="flex:1"><div class="ww">' + w.w + ' <span style="font-size:14px;color:#8a6470;font-weight:400">' + w.ph + "</span></div>";
   h +=   '<div class="wc cn">' + esc(w.cn) + "</div></div>";
   h +=   '<button class="btn ghost mini" id="again" style="width:auto;padding:10px 14px">🔊</button></div>';
+  h += phoHTML(w);
   h += '<div class="sent cn">' + esc(w.s) + (w.from ? ' <span style="font-size:11px;color:#8a6470">（' + w.from + "）</span>" : "") + "</div>";
   if (!ok && q.t !== "listen") h += '<div style="font-size:12.5px;color:#8a6470;margin-top:8px" class="cn">听一遍发音，跟着读两遍，再往下走 →</div>';
   h += '<div style="margin-top:12px"><button class="btn" id="next">' + (S.i === S.order.length - 1 ? "看结果" : "下一题") + "</button></div>";
@@ -673,6 +813,11 @@ function feedHTML(q, w, ok){
 }
 function wireFeed(q, w){
   document.getElementById("again").onclick = function(){ say(w.w, 0.7); };
+  var bl = document.getElementById("blend");
+  if (bl) bl.onclick = function(){
+    say(w.w, 0.45);
+    setTimeout(function(){ say(w.w, 0.8); }, 900);
+  };
 }
 
 function pick(a){ return a[Math.floor(Math.random()*a.length)]; }
