@@ -338,7 +338,7 @@ var UNITS = {
 
 /* ============ 工具 ============ */
 var app = document.getElementById("app");
-var S = { unit:1, screen:"home", i:0, order:[], picked:null, correct:0, streak:0, best:0, miss:[], sound:true };
+var S = { unit:1, screen:"home", i:0, order:[], opts:[], picked:null, correct:0, streak:0, best:0, miss:[], sound:true };
 
 function W(key){
   var u = UNITS[S.unit];
@@ -347,16 +347,24 @@ function W(key){
 }
 function esc(s){ return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
 
-/* 按题型判断某个选项对不对：拼写题比的是「缺的那个字母」，其他题比整词 */
+/* 按题型判断某个选项值对不对：拼写题比的是「缺的那个字母」，其他题比整词 */
 function onlyLetters(s){ return String(s).toUpperCase().replace(/[^A-Z]/g, ""); }
-function isRightQ(q, v){
-  var val = String(q.o[v] || "");
+function isRightVal(q, val){
+  val = String(val == null ? "" : val);
   if (q.t === "spell"){
     var pos = q.blank.indexOf("_");
     return val.toLowerCase() === q.k.charAt(pos).toLowerCase();
   }
   if (q.t === "sent") return val.trim().toLowerCase() === q.k.toLowerCase();
   return onlyLetters(val) === onlyLetters(q.k);
+}
+/* 选项打乱：每道题渲染时洗一次，正确项位置随机（防止「第一个就是答案」） */
+function shuffle(a){
+  for (var i=a.length-1;i>0;i--){
+    var j = Math.floor(Math.random()*(i+1));
+    var t = a[i]; a[i] = a[j]; a[j] = t;
+  }
+  return a;
 }
 
 var voice = null;
@@ -549,8 +557,9 @@ function renderQ(){
   }
 
   h += '<div class="opts" id="opts">';
-  for (var i=0;i<q.o.length;i++){
-    h += '<button class="opt" data-v="' + i + '">' + esc(q.o[i]) + "</button>";
+  S.opts = shuffle(q.o.slice());
+  for (var i=0;i<S.opts.length;i++){
+    h += '<button class="opt" data-v="' + i + '">' + esc(S.opts[i]) + "</button>";
   }
   h += "</div>";
   h += '<div id="feed"></div>';
@@ -573,12 +582,12 @@ function onPick(ev){
   if (S.picked !== null) return;
   var idx = Number(ev.currentTarget.getAttribute("data-v"));
   var q = S.order[S.i], w = W(q.k);
-  var ok = isRightQ(q, idx);
+  var ok = isRightVal(q, S.opts[idx]);
   S.picked = idx;
   var btns = app.querySelectorAll(".opt");
   for (var i=0;i<btns.length;i++){
     var v = Number(btns[i].getAttribute("data-v"));
-    var isRight = isRightQ(q, v);
+    var isRight = isRightVal(q, S.opts[v]);
     if (isRight) btns[i].className = "opt right";
     else if (v === idx) btns[i].className = "opt wrong";
     else btns[i].className = "opt dim";
