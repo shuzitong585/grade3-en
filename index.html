@@ -338,7 +338,7 @@ var UNITS = {
 
 /* ============ 工具 ============ */
 var app = document.getElementById("app");
-var S = { unit:1, screen:"home", i:0, order:[], opts:[], picked:null, correct:0, streak:0, best:0, miss:[], sound:true };
+var S = { unit:1, screen:"home", i:0, order:[], opts:[], slot:[], picked:null, correct:0, streak:0, best:0, miss:[], sound:true };
 
 function W(key){
   var u = UNITS[S.unit];
@@ -358,13 +358,57 @@ function isRightVal(q, val){
   if (q.t === "sent") return val.trim().toLowerCase() === q.k.toLowerCase();
   return onlyLetters(val) === onlyLetters(q.k);
 }
-/* 选项打乱：每道题渲染时洗一次，正确项位置随机（防止「第一个就是答案」） */
+/* 纯随机洗牌（干扰项用） */
 function shuffle(a){
   for (var i=a.length-1;i>0;i--){
     var j = Math.floor(Math.random()*(i+1));
     var t = a[i]; a[i] = a[j]; a[j] = t;
   }
   return a;
+}
+
+/* 正确项的落点：均衡轮转
+   做法：每 k 题算「一轮」，一轮内 k 个位置各用一次（乱序），
+   并保证相邻两题不落在同一位置。
+   好处：位置分布天然均匀（各 25%），不会出现「连着三道都在第 1 位」。 */
+function balancedSlots(n, k){
+  var out = [];
+  if (k < 2){ for (var z=0;z<n;z++) out.push(0); return out; }
+  while (out.length < n){
+    var bag = [];
+    for (var i=0;i<k;i++) bag.push(i);
+    shuffle(bag);
+    if (out.length){                       // 别和上一题撞在同一格
+      for (var j=1;j<bag.length;j++){
+        if (bag[j] !== out[out.length-1]){ var t=bag[0]; bag[0]=bag[j]; bag[j]=t; break; }
+      }
+    }
+    out = out.concat(bag);
+  }
+  out = out.slice(0, n);
+  for (var m=1;m<out.length;m++){          // 截断后兜底复查一次
+    if (out[m] === out[m-1]){
+      for (var q=m+1;q<out.length;q++){
+        if (out[q] !== out[m-1] && (q+1 >= out.length || out[q+1] !== out[m])){
+          var tp=out[m]; out[m]=out[q]; out[q]=tp; break;
+        }
+      }
+    }
+  }
+  return out;
+}
+
+/* 按指定落点组装选项：正确项放 slot 位，干扰项随机占其余位 */
+function makeOptions(q, slot){
+  var src = q.o.slice(), ci = -1;
+  for (var i=0;i<src.length;i++){ if (isRightVal(q, src[i])){ ci = i; break; } }
+  var right = ci >= 0 ? src.splice(ci, 1)[0] : src.shift();
+  var rest = shuffle(src);
+  var len = q.o.length;
+  slot = ((slot % len) + len) % len;
+  var out = [];
+  for (var k=0;k<len;k++) out.push(k === slot ? right : rest.shift());
+  return out;
 }
 
 var voice = null;
@@ -529,6 +573,7 @@ function deck(onlyKeys){
 function start(qs){
   S.order = qs.slice();
   S.i = 0; S.correct = 0; S.streak = 0; S.miss = []; S.picked = null;
+  S.slot = balancedSlots(S.order.length, 4);   // 正确项落点：均衡轮转，开场洗一次
   S.screen = "quiz";
   renderQ();
 }
@@ -557,7 +602,8 @@ function renderQ(){
   }
 
   h += '<div class="opts" id="opts">';
-  S.opts = shuffle(q.o.slice());
+  var slot = (S.slot && S.slot.length) ? S.slot[S.i] : Math.floor(Math.random() * q.o.length);
+  S.opts = makeOptions(q, slot);
   for (var i=0;i<S.opts.length;i++){
     h += '<button class="opt" data-v="' + i + '">' + esc(S.opts[i]) + "</button>";
   }
