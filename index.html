@@ -483,7 +483,7 @@ window.PHO = PHO;
 
 /* ============ 工具 ============ */
 var app = document.getElementById("app");
-var S = { unit:1, screen:"home", i:0, order:[], opts:[], slot:[], picked:null, correct:0, streak:0, best:0, miss:[], sound:true };
+var S = { unit:1, screen:"home", i:0, order:[], opts:[], slot:[], picked:null, correct:0, streak:0, best:0, miss:[], sound:true, mode:"quiz" };
 
 function W(key){
   var u = UNITS[S.unit];
@@ -501,6 +501,7 @@ function isRightVal(q, val){
     return val.toLowerCase() === q.k.charAt(pos).toLowerCase();
   }
   if (q.t === "sent") return val.trim().toLowerCase() === q.k.toLowerCase();
+  if (q.t === "en2cn"){ var cv = q.cn || (W(q.k) || {}).cn; return cv ? val.trim() === cv : false; }
   return onlyLetters(val) === onlyLetters(q.k);
 }
 /* 纯随机洗牌（干扰项用） */
@@ -949,6 +950,7 @@ function renderHome(){
   h += '<div class="card">';
   h +=   '<ul class="how cn">';
   h +=     "<li>看图选词、听音选词、补字母、句子填空，四种小游戏轮着来</li>";
+  h +=     "<li>每个单元都有「课后练习」，每次自动换一套新题，适合当作业</li>";
   h +=     "<li>答错的词会自动进「复习袋」，随时回去练</li>";
   h +=     "<li>拿到 ★ 就能解锁下一关，点 🔊 可以听发音</li>";
   h +=   "</ul>";
@@ -993,6 +995,7 @@ function renderUnit(n){
   h +=     '<div style="flex:1"><div style="font-size:17px;font-weight:600">' + esc(u.title) + '</div><div style="font-size:12px;color:#8a6470">' + u.words.length + " 个词 · " + u.qs.length + " 道题 · 约 3 分钟</div></div>";
   h +=   "</div>";
   h +=   '<div style="margin-top:14px"><button class="btn" id="go">开始闯关</button></div>';
+  h +=   '<div style="margin-top:10px"><button class="btn ghost" id="hw">📝 课后练习 · 随机一套新题</button></div>';
   h +=   '<div class="row">';
   h +=     '<button class="btn ghost mini" id="drill"' + (bag ? "" : " disabled style=\"opacity:.5\"") + '>复习袋 ' + bag + "</button>";
   h +=     '<button class="btn ghost mini" id="snd">声音：' + (S.sound ? "开" : "关") + "</button>";
@@ -1002,6 +1005,7 @@ function renderUnit(n){
   app.innerHTML = h;
   document.getElementById("bk").onclick = renderHome;
   document.getElementById("go").onclick = function(){ start(deck()); };
+  document.getElementById("hw").onclick = function(){ start(buildPractice(n), "practice"); };
   var dbtn = document.getElementById("drill");
   if (dbtn) dbtn.onclick = function(){ start(deck(bagList(n))); };
   document.getElementById("snd").onclick = function(){ S.sound = !S.sound; renderUnit(n); if(S.sound) say("Hello!"); };
@@ -1013,10 +1017,96 @@ function deck(onlyKeys){
   return u.qs.filter(function(q){ return !onlyKeys || onlyKeys.indexOf(q.k) >= 0; });
 }
 
+/* ============ 课后练习：每个单元自动出「随机一套新题」 ============
+   规则：每个词恰好一道题，题型每轮随机（听音选词 / 看中文选单词 /
+   看单词选中文 / 补字母 / 句子填空），重做一套全是新题。
+   干扰项安全线：可能混淆的同义词不进同一道题（mum/mother 等），
+   中文意思有重字的也不互相当干扰项（grandma/grandmother）。 */
+var MEAN_PAIRS = [["mum","mother"],["dad","father"],["grandma","grandmother"],["grandpa","grandfather"]];
+function meanClash(a, b){
+  for (var i=0;i<MEAN_PAIRS.length;i++){
+    var p = MEAN_PAIRS[i];
+    if ((a === p[0] && b === p[1]) || (a === p[1] && b === p[0])) return true;
+  }
+  return false;
+}
+function cnTokens(s){ return String(s).replace(/（[^）]*）/g, "；").split(/[；;，、,·\s]+/).filter(Boolean); }
+function cnOverlap(a, b){
+  var A = cnTokens(a), B = cnTokens(b);
+  for (var i=0;i<A.length;i++) if (B.indexOf(A[i]) >= 0) return true;
+  return false;
+}
+/* 从本单元挑 cnt 个干扰项，f 是额外过滤（传词对象） */
+function distractWords(n, key, cnt, f){
+  var pool = shuffle(UNITS[n].words.slice()), out = [];
+  for (var i=0;i<pool.length && out.length<cnt;i++){
+    var w = pool[i];
+    if (w.w === key) continue;
+    if (f && !f(w)) continue;
+    out.push(w);
+  }
+  return out;
+}
+/* 词是否出现在自己的例句里（返回句中的原形，如 Smile / can） */
+function wordInSent(w){
+  var core = w.w.replace(/[^A-Za-z]/g, "");
+  if (!core) return null;
+  var m = String(w.s).match(new RegExp("\\b" + core + "\\b", "i"));
+  return m ? m[0] : null;
+}
+function capLike(s, model){
+  return /^[A-Z]/.test(model) ? s.charAt(0).toUpperCase() + s.slice(1) : s;
+}
+function buildPractice(n, onlyKeys){
+  var words = UNITS[n].words.filter(function(w){ return !onlyKeys || onlyKeys.indexOf(w.w) >= 0; });
+  words = shuffle(words.slice());
+  var base = ["listen", "cn2en", "en2cn", "spell"], qs = [];
+  for (var i=0;i<words.length;i++){
+    var w = words[i];
+    var avail = base.slice();
+    if (wordInSent(w)) avail.push("sent");
+    var t = avail[Math.floor(Math.random() * avail.length)];
+    var q = { t: t, k: w.w, o: [] };
+    if (t === "listen"){
+      var ds = distractWords(n, w.w, 3, function(d){ return !meanClash(d.w, w.w); });
+      q.o = [w.w].concat(ds.map(function(d){ return d.w; }));
+    } else if (t === "cn2en"){
+      var ds2 = distractWords(n, w.w, 3, function(d){ return !meanClash(d.w, w.w); });
+      q.o = [w.w].concat(ds2.map(function(d){ return d.w; }));
+    } else if (t === "en2cn"){
+      var ds3 = distractWords(n, w.w, 3, function(d){ return !meanClash(d.w, w.w) && !cnOverlap(d.cn, w.cn); });
+      q.cn = w.cn;
+      q.o = [w.cn].concat(ds3.map(function(d){ return d.cn; }));
+    } else if (t === "sent"){
+      var hit = wordInSent(w);
+      var re = new RegExp("\\b" + w.w.replace(/[^A-Za-z]/g, "") + "\\b", "i");
+      q.blank = String(w.s).replace(re, "____");
+      var ds4 = distractWords(n, w.w, 3, function(d){ return !meanClash(d.w, w.w); });
+      q.o = [hit].concat(ds4.map(function(d){ return capLike(d.w, hit); }));
+    } else {                                    /* spell：挖掉一个字母（优先挖元音） */
+      var vow = [], all = [];
+      for (var p=0;p<w.w.length;p++){
+        all.push(p);
+        if ("aeiou".indexOf(w.w.charAt(p).toLowerCase()) >= 0) vow.push(p);
+      }
+      var pos = vow.length ? vow[Math.floor(Math.random() * vow.length)] : all[Math.floor(Math.random() * all.length)];
+      var L = w.w.charAt(pos);
+      q.blank = w.w.slice(0, pos) + "_" + w.w.slice(pos + 1);
+      var low = L.toLowerCase();
+      var letters = ("aeiou".indexOf(low) >= 0 ? "aeiou" : "bcdfghjklmnpqrstvwxyz").split("");
+      var ds5 = shuffle(letters.filter(function(x){ return x !== low; })).slice(0, 3);
+      q.o = [L].concat(ds5.map(function(x){ return x; }));
+    }
+    qs.push(q);
+  }
+  return qs;
+}
+
 /* ============ 答题 ============ */
-function start(qs){
+function start(qs, mode){
   S.order = qs.slice();
   S.i = 0; S.correct = 0; S.streak = 0; S.miss = []; S.picked = null;
+  S.mode = mode || "quiz";
   S.slot = balancedSlots(S.order.length, 4);   // 正确项落点：均衡轮转，开场洗一次
   S.screen = "quiz";
   renderQ();
@@ -1041,6 +1131,13 @@ function renderQ(){
     h += "</div>";
   } else if (q.t === "spell"){
     h += '<div class="qbox"><div class="emoji">' + w.e + '</div><div class="stem">' + q.blank.replace(/_/g, "＿") + '</div><div class="sub">' + esc(w.cn) + " · 选出缺的那个字母</div></div>";
+  } else if (q.t === "cn2en"){
+    h += '<div class="qbox"><div class="emoji">' + w.e + '</div><div class="stem cn" style="font-size:22px">' + esc(w.cn) + '</div><div class="sub">中文意思在这里，选出对应的英文单词</div></div>';
+  } else if (q.t === "en2cn"){
+    h += '<div class="qbox">';
+    h +=   '<button class="speak" id="play"><svg viewBox="0 0 24 24"><path d="M4 9v6h4l5 4V5L8 9H4zm12.5 3a4.5 4.5 0 0 0-2.5-4v8a4.5 4.5 0 0 0 2.5-4z"/></svg></button>';
+    h +=   '<div class="stem" style="font-size:24px">' + esc(w.w) + '</div><div class="sub">点喇叭听发音，选出它的中文意思</div>';
+    h += "</div>";
   } else {
     h += '<div class="qbox"><div class="emoji" style="font-size:40px">' + w.e + '</div><div class="stem" style="font-size:21px;line-height:1.5">' + esc(q.blank) + '</div><div class="sub">选一个词填进句子</div></div>';
   }
@@ -1049,23 +1146,24 @@ function renderQ(){
   var slot = (S.slot && S.slot.length) ? S.slot[S.i] : Math.floor(Math.random() * q.o.length);
   S.opts = makeOptions(q, slot);
   for (var i=0;i<S.opts.length;i++){
-    h += '<button class="opt" data-v="' + i + '">' + esc(S.opts[i]) + "</button>";
+    h += '<button class="opt' + (q.t === "en2cn" ? " cn" : "") + '" data-v="' + i + '">' + esc(S.opts[i]) + "</button>";
   }
   h += "</div>";
   h += '<div id="feed"></div>';
-  h += '<div class="foot">' + (S.sound ? "" : "声音已关 · ") + "答错不扣分，会进复习袋</div>";
+  h += '<div class="foot">' + (S.sound ? "" : "声音已关 · ") + (S.mode === "practice" ? "课后练习 · " : "") + "答错不扣分，会进复习袋</div>";
   app.innerHTML = h;
 
   var btns = app.querySelectorAll(".opt");
   for (var b=0;b<btns.length;b++) btns[b].onclick = onPick;
-  if (q.t === "listen"){
+  if (q.t === "listen" || q.t === "en2cn"){
     document.getElementById("play").onclick = function(){ say(q.k); };
     setTimeout(function(){ say(q.k); }, 350);
   }
 }
 
 function typeName(t){
-  return t === "pic" ? "看图选词" : t === "listen" ? "听音选词" : t === "spell" ? "补全拼写" : "句子填空";
+  return t === "pic" ? "看图选词" : t === "listen" ? "听音选词" : t === "spell" ? "补全拼写"
+    : t === "cn2en" ? "看中文选单词" : t === "en2cn" ? "听词选意思" : "句子填空";
 }
 
 function onPick(ev){
@@ -1278,6 +1376,7 @@ function pick(a){ return a[Math.floor(Math.random()*a.length)]; }
 
 /* ============ 结果 ============ */
 function finish(){
+  if (S.mode === "practice") return finishPractice();
   var u = UNITS[S.unit];
   var total = S.order.length;
   var acc = total ? S.correct / total : 0;
@@ -1319,6 +1418,45 @@ function finish(){
   document.getElementById("all").onclick = function(){ start(deck()); };
   var rd = document.getElementById("redo");
   if (rd) rd.onclick = function(){ start(deck(S.miss.slice())); };
+  say("Well done!");
+}
+
+/* ============ 课后练习结果：不记星星，只看正确率 ============ */
+function finishPractice(){
+  var u = UNITS[S.unit];
+  var total = S.order.length;
+  var acc = total ? S.correct / total : 0;
+  S.screen = "result";
+  var h = "";
+  h += '<div class="top"><div><div class="t1">' + u.badge + " · 课后练习</div><div class=\"t2\">" + total + " 题答对 " + S.correct + ' 题</div></div><div class="pill">📝</div></div>';
+  h += '<div class="card">';
+  h +=   '<div style="text-align:center;font-size:34px">📝</div>';
+  h +=   '<div style="text-align:center;font-size:16px;font-weight:600;margin-top:4px">' + (acc === 1 ? "全对！太厉害啦 🎉" : acc >= 0.8 ? "完成得很好！" : acc >= 0.6 ? "不错，再巩固一下" : "练完啦，错词再补一补") + "</div>";
+  h +=   '<div style="text-align:center;font-size:12.5px;color:#8a6470;margin-top:6px" class="cn">正确率 ' + Math.round(acc * 100) + "% · 练习不计星星，答错的词已进复习袋</div>";
+  if (S.miss.length){
+    h += '<div style="margin-top:14px"><div style="font-size:14px;font-weight:600">要再练的词（' + S.miss.length + "）</div>";
+    for (var i=0;i<S.miss.length;i++){
+      var w = W(S.miss[i]);
+      if (!w) continue;
+      h += '<div class="miss"><div class="me">' + w.e + '</div><div style="flex:1"><div class="mw">' + w.w + " <span style=\"font-size:12px;color:#8a6470;font-weight:400\">" + w.ph + '</span></div><div class="mc cn">' + esc(w.cn) + '</div></div><button class="btn ghost mini" data-say="' + w.w + '" style="width:auto;padding:8px 12px">🔊</button></div>';
+    }
+    h += "</div>";
+    h += '<div class="row"><button class="btn" id="redo">再练这 ' + S.miss.length + " 个词</button></div>";
+  } else {
+    h += '<div style="margin-top:14px;font-size:14px" class="cn">全部答对，没有要补的词 🎉</div>';
+  }
+  h +=   '<div class="row"><button class="btn ghost" id="home">回地图</button><button class="btn ghost" id="back">回单元</button><button class="btn ghost" id="newset">再练一套新题</button></div>';
+  h += "</div>";
+  h += '<div class="foot">每次练习都是随机新题 · 适合每天当课后作业</div>';
+  app.innerHTML = h;
+
+  var sbs = app.querySelectorAll("[data-say]");
+  for (var s=0;s<sbs.length;s++) sbs[s].onclick = function(e){ say(e.currentTarget.getAttribute("data-say"), 0.72); };
+  document.getElementById("home").onclick = renderHome;
+  document.getElementById("back").onclick = function(){ renderUnit(S.unit); };
+  document.getElementById("newset").onclick = function(){ start(buildPractice(S.unit), "practice"); };
+  var rd = document.getElementById("redo");
+  if (rd) rd.onclick = function(){ start(buildPractice(S.unit, S.miss.slice()), "practice"); };
   say("Well done!");
 }
 
